@@ -1021,8 +1021,12 @@ globals = {
     "CRHUD",
 
     -- JJ2024
+    "ROLE_BARRELMIMIC",
+    "ROLE_HOODOO",
+    "WIN_BARRELMIMIC",
 
     -- Optional external mods
+    "Randomat",
     "TTTKP",
     "TTTPAP"
 }
