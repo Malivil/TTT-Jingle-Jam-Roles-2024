@@ -24,19 +24,20 @@ ROLE.shortdesc = "Becomes an explodable barrel on demand. If it explodes and kil
 
 ROLE.team = ROLE_TEAM_JESTER
 
-ROLE.convars = {}
-TableInsert(ROLE.convars, {
-    cvar = "ttt_barrelmimic_announce",
-    type = ROLE_CONVAR_TYPE_BOOL
-})
-TableInsert(ROLE.convars, {
-    cvar = "ttt_barrelmimic_respawn_all_deaths",
-    type = ROLE_CONVAR_TYPE_BOOL
-})
-TableInsert(ROLE.convars, {
-    cvar = "ttt_barrelmimic_respawn_delay",
-    type = ROLE_CONVAR_TYPE_NUM
-})
+ROLE.convars = {
+    {
+        cvar = "ttt_barrelmimic_announce",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_barrelmimic_respawn_all_deaths",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_barrelmimic_respawn_delay",
+        type = ROLE_CONVAR_TYPE_NUM
+    }
+}
 
 ROLE.translations = {
     ["english"] = {
