@@ -593,8 +593,8 @@ if CLIENT then
 
             DrawColorModify({
                 ["$pp_colour_addr"] = 0,
-                ["$pp_colour_addg"] = (nightIntensity * -0.5),
-                ["$pp_colour_addb"] = (nightIntensity * -0.5),
+                ["$pp_colour_addg"] = nightIntensity * -0.5,
+                ["$pp_colour_addb"] = nightIntensity * -0.5,
                 ["$pp_colour_brightness"] = 0,
                 ["$pp_colour_contrast"] = 1,
                 ["$pp_colour_colour"] = 1,
@@ -622,8 +622,8 @@ if CLIENT then
             })
 
             DrawColorModify({
-                ["$pp_colour_addr"] = (nightIntensity * -0.5),
-                ["$pp_colour_addg"] = (nightIntensity * -0.2),
+                ["$pp_colour_addr"] = nightIntensity * -0.5,
+                ["$pp_colour_addg"] = nightIntensity * -0.2,
                 ["$pp_colour_addb"] = 0,
                 ["$pp_colour_brightness"] = 0,
                 ["$pp_colour_contrast"] = 1,
