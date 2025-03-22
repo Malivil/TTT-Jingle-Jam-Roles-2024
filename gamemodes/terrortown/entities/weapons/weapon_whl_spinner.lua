@@ -41,7 +41,7 @@ function SWEP:Initialize()
     self:SendWeaponAnim(ACT_SLAM_DETONATOR_DRAW)
 
     if CLIENT then
-        self:AddHUDHelp("whl_spinner_help_pri", "whl_spinner_help_sec", true)
+        self:AddHUDHelp("whl_spinner_help_pri", "whl_spinner_help_sec", true, { times = GetConVar("ttt_wheelboy_spins_to_win"):GetInt() })
     end
     return self.BaseClass.Initialize(self)
 end
