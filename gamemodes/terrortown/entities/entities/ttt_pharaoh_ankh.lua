@@ -245,18 +245,18 @@ if CLIENT then
     local RenderSetMaterial = render.SetMaterial
 
     local auraTexture = Material("cr_pharaoh/decals/ankh_floor_decal.vmt")
+    local auraNormal = Vector(0, 0, 1)
 
     function ENT:Draw()
         self:DrawModel()
         self:DrawShadow(true)
 
         local pos = self:GetPos()
-        local normal = Vector(0, 0, 1)
         local size = self.HealRadius * 2
 
         CamStart3D()
             RenderSetMaterial(auraTexture)
-            RenderDrawQuadEasy(pos, normal, size, size, COLOR_WHITE)
+            RenderDrawQuadEasy(pos, auraNormal, size, size, COLOR_WHITE)
         CamEnd3D()
     end
 
