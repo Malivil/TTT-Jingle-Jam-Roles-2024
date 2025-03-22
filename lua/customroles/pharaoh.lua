@@ -297,7 +297,7 @@ if SERVER then
         local curTime = CurTime()
 
         -- If it's been too long since the user used the ankh, stop tracking their progress
-        if curTime - ply.PharaohLastStealTime >= 0 then
+        if curTime - ply.PharaohLastStealTime >= 0.5 then
             ply.PharaohLastStealTime = nil
             ply:SetProperty("PharaohStealTarget", nil, ply)
             ply:SetProperty("PharaohStealStart", 0, ply)
