@@ -77,7 +77,9 @@ function ENT:Initialize()
     self:SetMoveType(MOVETYPE_VPHYSICS)
     self:SetSolid(SOLID_BBOX)
 
-    self:SetCollisionBounds(Vector(-5, -5, -5), Vector(5, 5, 32))
+    local mins = Vector(-5, -5, -5)
+    local maxs = Vector(5, 5, 32)
+    self:SetCollisionBounds(mins, maxs)
     self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 
     if SERVER then
@@ -95,27 +97,8 @@ function ENT:Initialize()
     end
 
     if CLIENT then
-        local cam = cam
-        local render = render
-
-        local CamStart3D = cam.Start3D
-        local CamEnd3D = cam.End3D
-        local RenderDrawBox = render.DrawBox
-        local RenderSetMaterial = render.SetMaterial
-
-        local auraTexture = Material("cr_pharaoh/decals/ankh_floor_decal.vmt")
-        local pos = self:GetPos()
-        local angle = self:GetAngles()
-        local radius = ankh_heal_repair_dist:GetInt()
-        local size = Vector(radius, radius, 0)
-
-        -- Render the projected aura
-        hook.Add("HUDPaint", self:EntIndex() .. "_HUDPaint", function()
-            CamStart3D()
-                RenderSetMaterial(auraTexture)
-                RenderDrawBox(pos, angle, -size, size, COLOR_WHITE)
-            CamEnd3D()
-        end)
+        self.HealRadius = ankh_heal_repair_dist:GetInt()
+        self:SetRenderBounds(mins, maxs, Vector(self.HealRadius, self.HealRadius, 0))
     end
 end
 
@@ -253,8 +236,30 @@ if SERVER then
 end
 
 if CLIENT then
-    function ENT:OnRemove()
-        -- Remove the projected aura
-        hook.Remove("HUDPaint", self:EntIndex() .. "_HUDPaint")
+    local cam = cam
+    local render = render
+
+    local CamStart3D = cam.Start3D
+    local CamEnd3D = cam.End3D
+    local RenderDrawQuadEasy = render.DrawQuadEasy
+    local RenderSetMaterial = render.SetMaterial
+
+    local auraTexture = Material("cr_pharaoh/decals/ankh_floor_decal.vmt")
+
+    function ENT:Draw()
+        self:DrawModel()
+        self:DrawShadow(true)
+
+        local pos = self:GetPos()
+        local normal = Vector(0, 0, 1)
+        local size = self.HealRadius * 2
+
+        CamStart3D()
+            RenderSetMaterial(auraTexture)
+            RenderDrawQuadEasy(pos, normal, size, size, COLOR_WHITE)
+        CamEnd3D()
+    end
+
+    function ENT:Think()
     end
 end
