@@ -193,7 +193,7 @@ AddHook("TTTScoringSummaryRender", "WheelBoy_TTTScoringSummaryRender", function(
     if ply:IsWheelBoy() then
         local wheelboyKilled = ply:GetNWString("WheelBoyKilled", "")
         if #wheelboyKilled > 0 then
-            return roleFileName, groupingRole, roleColor, name, wheelboyKilled, LANG.LANG.GetTranslation("score_wheelboy_killed")
+            return roleFileName, groupingRole, roleColor, name, wheelboyKilled, LANG.GetTranslation("score_wheelboy_killed")
         end
     end
 end)
