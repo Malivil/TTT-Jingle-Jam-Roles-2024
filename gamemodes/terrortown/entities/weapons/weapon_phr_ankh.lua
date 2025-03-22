@@ -89,8 +89,11 @@ function SWEP:PrimaryAttack()
         local ankh = ents.Create("ttt_pharaoh_ankh")
         local eyeAngles = owner:EyeAngles()
 
+        local offset = owner:GetAimVector() * 15
+        offset.z = 5
+
         -- Spawn the ankh
-        ankh:SetPos(tr.HitPos)
+        ankh:SetPos(tr.HitPos - offset)
         ankh:SetAngles(Angle(0, eyeAngles.y, 0))
         ankh:SetPharaoh(owner)
         ankh:SetPlacer(owner)
@@ -131,10 +134,10 @@ function SWEP:ViewModelDrawn()
 
     render.Model({
         model = self.WorldModel,
-        pos = tr.HitPos,
+        pos = tr.HitPos - Vector(0, 0, 5),
         angle = Angle(0, eyeAngles.y, 0)
     }, self.GhostEnt)
-    render.DrawWireframeBox(tr.HitPos + Vector(0, 0, 5), Angle(0, eyeAngles.y, 0), Vector(-5, -5, -5), Vector(5, 5, 12), hit and COLOR_GREEN or COLOR_RED, true)
+    render.DrawWireframeBox(tr.HitPos, Angle(0, eyeAngles.y, 0), Vector(-5, -5, -5), Vector(5, 5, 12), hit and COLOR_GREEN or COLOR_RED, true)
 end
 
 function SWEP:Reload()
