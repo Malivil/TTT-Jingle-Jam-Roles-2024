@@ -140,5 +140,34 @@ if CLIENT then
         end
     end)
 
-    -- TODO: Missionary tutorial
+    --------------
+    -- TUTORIAL --
+    --------------
+
+    AddHook("TTTTutorialRoleText", "Missionary_TTTTutorialRoleText", function(role, titleLabel)
+        if role ~= ROLE_MISSIONARY then return end
+
+        local roleColor = ROLE_COLORS[ROLE_DETECTIVE]
+        local innocentColor = ROLE_COLORS[ROLE_INNOCENT]
+        local traitorColor = ROLE_COLORS[ROLE_TRAITOR]
+        local hermitTeam = player.GetRoleTeam(ROLE_HERMIT, true)
+        local _, hermitColor = GetRoleTeamInfo(hermitTeam, true)
+
+        local html = "The " .. ROLE_STRINGS[ROLE_MISSIONARY] .. " is a " .. ROLE_STRINGS[ROLE_DETECTIVE] .. " and a member of the <span style='color: rgb(" .. innocentColor.r .. ", " .. innocentColor.g .. ", " .. innocentColor.b .. ")'>innocent team</span> whose job is to find and eliminate their enemies."
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>Instead of getting a DNA Scanner like a vanilla <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. ROLE_STRINGS[ROLE_DETECTIVE] .. "</span>, they have the ability to proselytize another player to grant them special abilities if they die.</span>"
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>Proselytized innocents will become <span style='color: rgb(" .. innocentColor.r .. ", " .. innocentColor.g .. ", " .. innocentColor.b .. ")'>" .. ROLE_STRINGS_PLURAL[ROLE_MONK] .. "</span>, traitors will become <span style='color: rgb(" .. traitorColor.r .. ", " .. traitorColor.g .. ", " .. traitorColor.b .. ")'>" .. ROLE_STRINGS_PLURAL[ROLE_ZEALOT] .. "</span>, and anyone else will become <span style='color: rgb(" .. hermitColor.r .. ", " .. hermitColor.g .. ", " .. hermitColor.b .. ")'>" .. ROLE_STRINGS_EXT[ROLE_HERMIT] .. "</span>.</span>"
+
+        local announce_proselytize = missionary_announce_proselytize:GetInt()
+        if announce_proselytize ~= MISSIONARY_ANNOUNCE_NONE then
+            if announce_proselytize == MISSIONARY_ANNOUNCE_AS_MISSIONARY or detectives_hide_special_mode:GetInt() == SPECIAL_DETECTIVE_HIDE_NONE then
+                html = html .. "<span style='display: block; margin-top: 10px;'>When a player is proselytized it will be <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>announced to everybody</span>.</span>"
+            elseif announce_proselytize == MISSIONARY_ANNOUNCE_AS_MARSHAL and marshal_announce_deputy:GetBool() then
+                html = html .. "<span style='display: block; margin-top: 10px;'>When a player is proselytized it will be <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>announced to everybody</span>, however it will appear as if " .. ROLE_STRINGS_EXT[ROLE_MARSHAL] .. " has promoted a player.</span>"
+            end
+        end
+
+        return html
+    end)
 end

@@ -71,7 +71,7 @@ if SERVER then
         net.Broadcast()
     end)
 
-    hook.Add("TTTDeathNotifyOverride", "Monk_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
+    AddHook("TTTDeathNotifyOverride", "Monk_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
         if not attacker:IsPlayer() then return end
@@ -117,7 +117,22 @@ if CLIENT then
         })
     end)
 
-    -- TODO: Monk tutorial
+    --------------
+    -- TUTORIAL --
+    --------------
+
+    AddHook("TTTTutorialRoleText", "Monk_TTTTutorialRoleText", function(role, titleLabel)
+        if role ~= ROLE_MONK then return end
+
+        local T = LANG.GetTranslation
+        local roleColor = ROLE_COLORS[ROLE_INNOCENT]
+
+        local html = "The " .. ROLE_STRINGS[ROLE_MONK] .. " is a member of the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. T("innocent") .. " team</span> who becomes more powerful after they die."
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>When the " .. ROLE_STRINGS[ROLE_MONK] .. " dies their body will disappear and they gain access to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>special abilities</span> they can use while spectating, including the ability to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>talk to the living</span> through in game chat.</span>"
+
+        return html
+    end)
 end
 
 AddHook("TTTRoleSpawnsArtificially", "Monk_TTTRoleSpawnsArtificially", function(role)

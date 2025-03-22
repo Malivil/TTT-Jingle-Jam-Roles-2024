@@ -301,7 +301,7 @@ if SERVER then
         net.Broadcast()
     end)
 
-    hook.Add("TTTDeathNotifyOverride", "Hermit_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
+    AddHook("TTTDeathNotifyOverride", "Hermit_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
         if not attacker:IsPlayer() then return end
@@ -441,7 +441,7 @@ if CLIENT then
     -- ROLE POPUP --
     ----------------
 
-    hook.Add("TTTRolePopupRoleStringOverride", "Hermit_TTTRolePopupRoleStringOverride", function(cli, roleString)
+    AddHook("TTTRolePopupRoleStringOverride", "Hermit_TTTRolePopupRoleStringOverride", function(cli, roleString)
         if not IsPlayer(cli) or not cli:IsHermit() then return end
 
         if hermit_is_independent:GetBool() then
@@ -450,7 +450,81 @@ if CLIENT then
         return roleString .. "_jester"
     end)
 
-    -- TODO: Hermit tutorial
+
+    --------------
+    -- TUTORIAL --
+    --------------
+
+    local function GetRevealModeInfo(roleColor, revealMode, teamName, teamColor)
+        local modeString = "When joining the <span style='color: rgb(" .. teamColor.r .. ", " .. teamColor.g .. ", " .. teamColor.b .. ")'>" .. string.lower(teamName) .. "</span> team, the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. ROLE_STRINGS[ROLE_HERMIT] .. "</span>'s new role will be revealed to "
+        local revealed = true
+        if revealMode == BEGGAR_REVEAL_ALL then
+            modeString = modeString .. "everyone"
+        elseif revealMode == BEGGAR_REVEAL_TRAITORS then
+            local revealColor = ROLE_COLORS[ROLE_TRAITOR]
+            modeString = modeString .. "only <span style='color: rgb(" .. revealColor.r .. ", " .. revealColor.g .. ", " .. revealColor.b .. ")'>" .. string.lower(LANG.GetTranslation("traitors")) .. "</span>"
+        elseif revealMode == BEGGAR_REVEAL_INNOCENTS then
+            local revealColor = ROLE_COLORS[ROLE_TRAITOR]
+            modeString = modeString .. "only <span style='color: rgb(" .. revealColor.r .. ", " .. revealColor.g .. ", " .. revealColor.b .. ")'>" .. string.lower(LANG.GetTranslation("innocents")) .. "</span>"
+        elseif revealMode == BEGGAR_REVEAL_ROLES_THAT_CAN_SEE_JESTER then
+            modeString = modeString .. "any role that can see <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. string.lower(LANG.GetTranslation("jesters")) .. "</span>"
+        else
+            modeString = modeString .. "nobody"
+            revealed = false
+        end
+        return modeString .. ".", revealed
+    end
+
+    AddHook("TTTTutorialRoleText", "Hermit_TTTTutorialRoleText", function(role, titleLabel)
+        if role ~= ROLE_HERMIT then return end
+
+        local roleTeam = ROLE_TEAM_JESTER
+        if hermit_is_independent:GetBool() then
+            roleTeam = ROLE_TEAM_INDEPENDENT
+        end
+        local _, roleColor = GetRoleTeamInfo(roleTeam, true)
+        local innocentColor = ROLE_COLORS[ROLE_INNOCENT]
+        local traitorColor = ROLE_COLORS[ROLE_TRAITOR]
+
+        local html = "The " .. ROLE_STRINGS[ROLE_HERMIT] .. " is "
+        if roleTeam == ROLE_TEAM_INDEPENDENT then
+            html = html .. "an <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>independent</span>"
+        else
+            html = html .. "a <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>jester</span>"
+        end
+        html = html .. " role whose goal is to convince another players to give them a shop item."
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>The " .. ROLE_STRINGS[ROLE_HERMIT] .. " then <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>joins the team</span> of whichever player gives them a <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>shop item</span>"
+
+        if hermit_keep_begging:GetBool() then
+            html = html .. ". However, they are still able to swap teams if they are given another shop item.</span>"
+        else
+            html = html .. " by becoming either <span style='color: rgb(" .. innocentColor.r .. ", " .. innocentColor.g .. ", " .. innocentColor.b .. ")'>" .. ROLE_STRINGS_EXT[ROLE_MONK] .. "</span> or <span style='color: rgb(" .. traitorColor.r .. ", " .. traitorColor.g .. ", " .. traitorColor.b .. ")'>" .. ROLE_STRINGS_EXT[ROLE_ZEALOT] .. "</span>.</span>"
+        end
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>If the " .. ROLE_STRINGS[ROLE_HERMIT] .. " is killed before they join a team, will switch to the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>opposite team</span> of their killer.</span>"
+
+        -- Innocent Reveal
+        local revealMode = hermit_reveal_innocent:GetInt()
+        local teamName, teamColor = GetRoleTeamInfo(ROLE_TEAM_INNOCENT, true)
+        local innoRevealString, innoRevealed = GetRevealModeInfo(roleColor, revealMode, teamName, teamColor)
+        html = html .. "<span style='display: block; margin-top: 10px;'>" .. innoRevealString .. "</span>"
+
+        -- Traitor Reveal
+        revealMode = hermit_reveal_traitor:GetInt()
+        teamName, teamColor = GetRoleTeamInfo(ROLE_TEAM_TRAITOR, true)
+        local traRevealString, traRevealed = GetRevealModeInfo(roleColor, revealMode, teamName, teamColor)
+        html = html .. "<span style='display: block; margin-top: 10px;'>" .. traRevealString .. "</span>"
+
+        local announceDelay = hermit_announce_delay:GetInt()
+        if (innoRevealed or traRevealed) and announceDelay > 0 then
+            html = html .. "<span style='display: block; margin-top: 10px;'>There is a <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>delay of " .. announceDelay .. " seconds</span> between when the " .. ROLE_STRINGS[ROLE_HERMIT] .. " changes teams and when the announcement happens.</span>"
+        end
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>When the " .. ROLE_STRINGS[ROLE_HERMIT] .. " dies their body will disappear and they gain access to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>special abilities</span> they can use while spectating, including the ability to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>talk to the living</span> through in game chat.</span>"
+
+        return html
+    end)
 end
 
 AddHook("TTTRoleSpawnsArtificially", "Hermit_TTTRoleSpawnsArtificially", function(role)

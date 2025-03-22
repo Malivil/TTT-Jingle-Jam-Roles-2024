@@ -78,7 +78,7 @@ if SERVER then
         net.Broadcast()
     end)
 
-    hook.Add("TTTDeathNotifyOverride", "Zealot_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
+    AddHook("TTTDeathNotifyOverride", "Zealot_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
         if not attacker:IsPlayer() then return end
@@ -139,13 +139,28 @@ if CLIENT then
     -- ROLE POPUP --
     ----------------
 
-    hook.Add("TTTRolePopupParams", "Zealot_TTTRolePopupParams", function(cli)
+    AddHook("TTTRolePopupParams", "Zealot_TTTRolePopupParams", function(cli)
         if cli:IsZealot() then
             return { asoulbound = ROLE_STRINGS_EXT[ROLE_SOULBOUND] }
         end
     end)
 
-    -- TODO: Zealot tutorial
+    --------------
+    -- TUTORIAL --
+    --------------
+
+    AddHook("TTTTutorialRoleText", "Zealot_TTTTutorialRoleText", function(role, titleLabel)
+        if role ~= ROLE_ZEALOT then return end
+
+        local T = LANG.GetTranslation
+        local roleColor = ROLE_COLORS[ROLE_TRAITOR]
+
+        local html = "The " .. ROLE_STRINGS[ROLE_ZEALOT] .. " is a member of the <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. T("traitor") .. " team</span> who becomes more powerful after they die."
+
+        html = html .. "<span style='display: block; margin-top: 10px;'>When the " .. ROLE_STRINGS[ROLE_ZEALOT] .. " dies their body will disappear and they become <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>" .. ROLE_STRINGS_EXT[ROLE_SOULBOUND] .. "</span>, gaining access to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>special abilities</span> they can use while spectating, including the ability to <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>talk to the living</span> through in game chat.</span>"
+
+        return html
+    end)
 end
 
 AddHook("TTTRoleSpawnsArtificially", "Zealot_TTTRoleSpawnsArtificially", function(role)
