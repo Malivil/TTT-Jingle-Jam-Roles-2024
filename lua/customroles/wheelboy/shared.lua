@@ -90,7 +90,7 @@ ROLE.convars =
 ROLE.translations = {
     ["english"] = {
         ["whl_spinner_help_pri"] = "Use {primaryfire} to spin the wheel",
-        ["whl_spinner_help_sec"] = "Use {secondaryfire} to transform back",
+        ["whl_spinner_help_sec"] = "Spin {times} time(s) to win!",
         ["ev_win_wheelboy"] = "The {role} has spun its way to cake!",
         ["hilite_wheelboy"] = "AND {role} GOT CAKE!",
         ["wheelboy_spin_hud"] = "Next wheel spin: {time}",
@@ -105,8 +105,8 @@ ROLE.translations = {
 RegisterRole(ROLE)
 
 CreateConVar("ttt_wheelboy_wheel_time", "15", FCVAR_REPLICATED, "How long the wheel should spin for", 1, 30)
-CreateConVar("ttt_wheelboy_wheel_recharge_time", "60", FCVAR_REPLICATED, "How long wheel boy must wait between wheel spins", 1, 180)
-CreateConVar("ttt_wheelboy_spins_to_win", "5", FCVAR_REPLICATED, "How many times wheel boy must spin their wheel to win", 1, 20)
+CreateConVar("ttt_wheelboy_wheel_recharge_time", "45", FCVAR_REPLICATED, "How long wheel boy must wait between wheel spins", 1, 180)
+CreateConVar("ttt_wheelboy_spins_to_win", "3", FCVAR_REPLICATED, "How many times wheel boy must spin their wheel to win", 1, 20)
 CreateConVar("ttt_wheelboy_wheel_end_wait_time", "5", FCVAR_REPLICATED, "How long the wheel should wait at the end, showing the result, before it hides", 1, 30)
 CreateConVar("ttt_wheelboy_announce_text", "1", FCVAR_REPLICATED, "Whether to announce that there is a wheel boy via text", 0, 1)
 CreateConVar("ttt_wheelboy_announce_sound", "1", FCVAR_REPLICATED, "Whether to announce that there is a wheel boy via a sound clip", 0, 1)

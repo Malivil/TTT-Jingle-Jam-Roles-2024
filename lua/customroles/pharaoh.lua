@@ -164,11 +164,6 @@ CreateConVar("ttt_pharaoh_shop_sync", "0", FCVAR_REPLICATED)
 CreateConVar("ttt_pharaoh_shop_random_percent", "0", FCVAR_REPLICATED, "The percent chance that a weapon in the shop will not be shown for the pharaoh", 0, 100)
 CreateConVar("ttt_pharaoh_shop_random_enabled", "0", FCVAR_REPLICATED, "Whether shop randomization should run for the pharaoh")
 
-local pharaoh_ankh_heal_rate = GetConVar("ttt_pharaoh_ankh_heal_rate")
-local pharaoh_ankh_heal_amount = GetConVar("ttt_pharaoh_ankh_heal_amount")
-local pharaoh_ankh_repair_rate = GetConVar("ttt_pharaoh_ankh_repair_rate")
-local pharaoh_ankh_repair_amount = GetConVar("ttt_pharaoh_ankh_repair_amount")
-
 -----------------
 -- TEAM CHANGE --
 -----------------
@@ -297,7 +292,7 @@ if SERVER then
         local curTime = CurTime()
 
         -- If it's been too long since the user used the ankh, stop tracking their progress
-        if curTime - ply.PharaohLastStealTime >= 0 then
+        if curTime - ply.PharaohLastStealTime >= 0.5 then
             ply.PharaohLastStealTime = nil
             ply:SetProperty("PharaohStealTarget", nil, ply)
             ply:SetProperty("PharaohStealStart", 0, ply)
@@ -507,10 +502,10 @@ if CLIENT then
             html = html .. " if they <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>interact with it</span> for " .. pharaoh_steal_time:GetInt() .. " second(s)!</span>"
         end
 
-        local heal_rate = pharaoh_ankh_heal_rate:GetInt()
-        local heal_amount = pharaoh_ankh_heal_amount:GetInt()
-        local repair_rate = pharaoh_ankh_repair_rate:GetInt()
-        local repair_amount = pharaoh_ankh_repair_amount:GetInt()
+        local heal_rate = GetConVar("ttt_pharaoh_ankh_heal_rate"):GetInt()
+        local heal_amount = GetConVar("ttt_pharaoh_ankh_heal_amount"):GetInt()
+        local repair_rate = GetConVar("ttt_pharaoh_ankh_repair_rate"):GetInt()
+        local repair_amount = GetConVar("ttt_pharaoh_ankh_repair_amount"):GetInt()
         local healing = heal_rate > 0 and heal_amount > 0
         local repairing = repair_rate > 0 and repair_amount > 0
         if healing or repairing then

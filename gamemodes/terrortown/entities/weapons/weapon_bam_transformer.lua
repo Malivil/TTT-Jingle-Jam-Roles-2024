@@ -130,6 +130,7 @@ function SWEP:SecondaryAttack()
     owner:UnSpectate()
     owner:DrawViewModel(true)
     owner:DrawWorldModel(true)
+    owner:SetNoDraw(false)
 
     owner.BarrelMimicEnt = nil
 

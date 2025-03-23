@@ -116,17 +116,17 @@ end
 function SWEP:SecondaryAttack()
 end
 
-if CLIENT then
-    SWEP.GhostEnt = ClientsideModel(SWEP.WorldModel)
-    -- Scale this down to match (roughly) the size it will be in the world
-    SWEP.GhostEnt:SetModelScale(0.53)
-end
-
 function SWEP:ViewModelDrawn()
     if SERVER then return end
 
     local owner = self:GetOwner()
     if not IsPlayer(owner) then return end
+
+    if not IsValid(self.GhostEnt) then
+        self.GhostEnt = ClientsideModel(self.WorldModel)
+        -- Scale this down to match (roughly) the size it will be in the world
+        self.GhostEnt:SetModelScale(0.53)
+    end
 
     -- Draw a box where the ankh will be placed, colored GREEN for a good location and RED for a bad one
     local tr, hit = self:GetAimTrace(owner)
@@ -149,8 +149,13 @@ function SWEP:OnDrop()
 end
 
 function SWEP:OnRemove()
-    if CLIENT and IsValid(self:GetOwner()) and self:GetOwner() == LocalPlayer() and self:GetOwner():Alive() then
-        RunConsoleCommand("lastinv")
+    if CLIENT then
+        SafeRemoveEntity(self.GhostEnt)
+        self.GhostEnt = nil
+
+        if IsValid(self:GetOwner()) and self:GetOwner() == LocalPlayer() and self:GetOwner():Alive() then
+            RunConsoleCommand("lastinv")
+        end
     end
 end
 

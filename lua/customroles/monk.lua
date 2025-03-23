@@ -31,7 +31,7 @@ end
 
 ROLE.translations = {
     ["english"] = {
-        ["ev_monk_killed"] = "The {monk} ({ply}) died and became a ghost"
+        ["ev_monk_died"] = "The {monk} ({ply}) died and became a ghost"
     }
 }
 
