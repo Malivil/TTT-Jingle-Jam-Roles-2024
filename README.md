@@ -124,39 +124,40 @@ The Pharaoh is an innocent role that can place an Ankh in the world somewhere. I
 \
 **ConVars**
 ```cpp
-ttt_pharaoh_enabled                0   // Whether or not the Pharaoh should spawn
-ttt_pharaoh_spawn_weight           1   // The weight assigned to spawning the Pharaoh
-ttt_pharaoh_min_players            0   // The minimum number of players required to spawn the Pharaoh
-ttt_pharaoh_starting_health        100 // The amount of health Pharaohs start with
-ttt_pharaoh_max_health             100 // The maximum amount of health Pharaohs can have
-ttt_pharaoh_is_detective           0   // Whether Pharaohs should be treated as a detective role
-ttt_pharaoh_is_independent         0   // Whether Pharaohs should be treated as independent. Ignored when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_steal_time             15  // The amount of time it takes to steal an Ankh
-ttt_pharaoh_innocent_steal         0   // Whether innocents are allowed to steal the Ankh
-ttt_pharaoh_traitor_steal          1   // Whether traitors are allowed to steal the Ankh
-ttt_pharaoh_jester_steal           0   // Whether jesters are allowed to steal the Ankh
-ttt_pharaoh_independent_steal      1   // Whether independents are allowed to steal the Ankh
-ttt_pharaoh_monster_steal          1   // Whether monsters are allowed to steal the Ankh
-ttt_pharaoh_respawn_delay          20  // How long (in seconds) after death a Pharaoh should respawn if they placed down an Ankh. Set to 0 to disable respawning
-ttt_pharaoh_respawn_warn_pharaoh   1   // Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else
-ttt_pharaoh_ankh_health            500 // How much health the Ankh should have
-ttt_pharaoh_move_ankh              1   // Whether an Ankh's owner can move it
-ttt_pharaoh_ankh_place_sound       1   // Whether to play a sound when the Ankh is placed down
-ttt_pharaoh_ankh_heal_repair_dist  100 // The maximum distance away the Pharaoh can be for the heal and repair to occur. Set to 0 to disable
-ttt_pharaoh_ankh_heal_rate         1   // How often (in seconds) the Pharaoh should heal when they are near the Ankh. Set to 0 to disable
-ttt_pharaoh_ankh_heal_amount       1   // How much to heal the Pharaoh per tick when they are near the Ankh. Set to 0 to disable
-ttt_pharaoh_ankh_repair_rate       1   // How often (in seconds) the Ankh should repair when their Pharaoh is near. Set to 0 to disable
-ttt_pharaoh_ankh_repair_amount     5   // How much to repair the Ankh per tick when their Pharaoh is near it. Set to 0 to disable
-ttt_pharaoh_damage_own_ankh        0   // Whether an Ankh's owner can damage it
-ttt_pharaoh_warn_damage            1   // Whether to warn an Ankh's owner is warned when it is damaged
-ttt_pharaoh_warn_destroy           1   // Whether to warn an Ankh's owner is warned when it is destroyed
-ttt_pharaoh_warn_steal             1   // Whether to warn an Ankh's owner is warned when it is stolen
-ttt_pharaoh_credits_starting       1   // The number of credits a Pharaoh should start with. Only used when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_shop_sync              0   // Whether pharaohs should have all weapons that vanilla detectives have in their weapon shop. Only used when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_shop_random_enabled    0   // Whether role shop randomization is enabled for pharaohs. Only used when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_shop_random_percent    0   // The percent chance that a weapon in the shop will be not be shown for pharaohs. Only used when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_can_see_jesters        1   // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Pharaohs. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
-ttt_pharaoh_update_scoreboard      1   // Whether Pharaohs see dead players as missing in action on the scoreboard. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
+ttt_pharaoh_enabled                0    // Whether or not the Pharaoh should spawn
+ttt_pharaoh_spawn_weight           1    // The weight assigned to spawning the Pharaoh
+ttt_pharaoh_min_players            0    // The minimum number of players required to spawn the Pharaoh
+ttt_pharaoh_starting_health        100  // The amount of health Pharaohs start with
+ttt_pharaoh_max_health             100  // The maximum amount of health Pharaohs can have
+ttt_pharaoh_is_detective           0    // Whether Pharaohs should be treated as a detective role
+ttt_pharaoh_is_independent         0    // Whether Pharaohs should be treated as independent. Ignored when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_steal_time             15   // The amount of time it takes to steal an Ankh
+ttt_pharaoh_innocent_steal         0    // Whether innocents are allowed to steal the Ankh
+ttt_pharaoh_traitor_steal          1    // Whether traitors are allowed to steal the Ankh
+ttt_pharaoh_jester_steal           0    // Whether jesters are allowed to steal the Ankh
+ttt_pharaoh_independent_steal      1    // Whether independents are allowed to steal the Ankh
+ttt_pharaoh_monster_steal          1    // Whether monsters are allowed to steal the Ankh
+ttt_pharaoh_respawn_delay          20   // How long (in seconds) after death a Pharaoh should respawn if they placed down an Ankh. Set to 0 to disable respawning
+ttt_pharaoh_respawn_warn_pharaoh   1    // Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else
+ttt_pharaoh_ankh_health            500  // How much health the Ankh should have
+ttt_pharaoh_move_ankh              1    // Whether an Ankh's owner can move it
+ttt_pharaoh_ankh_place_sound       1    // Whether to play a sound when the Ankh is placed down
+ttt_pharaoh_ankh_heal_repair_dist  100  // The maximum distance away the Pharaoh can be for the heal and repair to occur. Set to 0 to disable
+ttt_pharaoh_ankh_heal_rate         1    // How often (in seconds) the Pharaoh should heal when they are near the Ankh. Set to 0 to disable
+ttt_pharaoh_ankh_heal_amount       1    // How much to heal the Pharaoh per tick when they are near the Ankh. Set to 0 to disable
+ttt_pharaoh_ankh_repair_rate       1    // How often (in seconds) the Ankh should repair when their Pharaoh is near. Set to 0 to disable
+ttt_pharaoh_ankh_repair_amount     5    // How much to repair the Ankh per tick when their Pharaoh is near it. Set to 0 to disable
+ttt_pharaoh_damage_own_ankh        0    // Whether an Ankh's owner can damage it
+ttt_pharaoh_warn_damage            1    // Whether to warn an Ankh's owner is warned when it is damaged
+ttt_pharaoh_warn_destroy           1    // Whether to warn an Ankh's owner is warned when it is destroyed
+ttt_pharaoh_warn_steal             1    // Whether to warn an Ankh's owner is warned when it is stolen
+ttt_pharaoh_steal_grace_time       0.25 // How long (in seconds) before the steal progress of an Ankh is reset when a player stops looking at it
+ttt_pharaoh_credits_starting       1    // The number of credits a Pharaoh should start with. Only used when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_shop_sync              0    // Whether pharaohs should have all weapons that vanilla detectives have in their weapon shop. Only used when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_shop_random_enabled    0    // Whether role shop randomization is enabled for pharaohs. Only used when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_shop_random_percent    0    // The percent chance that a weapon in the shop will be not be shown for pharaohs. Only used when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_can_see_jesters        1    // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Pharaohs. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
+ttt_pharaoh_update_scoreboard      1    // Whether Pharaohs see dead players as missing in action on the scoreboard. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
 ```
 
 ## Werewolf

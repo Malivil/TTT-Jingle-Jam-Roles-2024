@@ -195,6 +195,7 @@ if SERVER then
 
     local pharaoh_warn_steal = CreateConVar("ttt_pharaoh_warn_steal", "1", FCVAR_NONE, "Whether to warn an Ankh's owner is warned when it is stolen", 0, 1)
     local pharaoh_respawn_warn_pharaoh = CreateConVar("ttt_pharaoh_respawn_warn_pharaoh", 1, FCVAR_NONE, "Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else", 0, 1)
+    local pharaoh_steal_grace_time = CreateConVar("ttt_pharaoh_steal_grace_time", 0.25, FCVAR_NONE, "How long (in seconds) before the steal progress of an Ankh is reset when a player stops looking at it", 0, 1)
 
     local function ResetState(ply)
         timer.Remove("TTTPharaohAnkhRespawn_" .. ply:SteamID64())
@@ -292,7 +293,7 @@ if SERVER then
         local curTime = CurTime()
 
         -- If it's been too long since the user used the ankh, stop tracking their progress
-        if curTime - ply.PharaohLastStealTime >= 0.5 then
+        if curTime - ply.PharaohLastStealTime >= pharaoh_steal_grace_time:GetFloat() then
             ply.PharaohLastStealTime = nil
             ply:SetProperty("PharaohStealTarget", nil, ply)
             ply:SetProperty("PharaohStealStart", 0, ply)
