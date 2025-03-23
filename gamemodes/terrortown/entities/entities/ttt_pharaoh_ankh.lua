@@ -83,12 +83,7 @@ function ENT:Initialize()
     self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 
     if SERVER then
-        local phys = self:GetPhysicsObject()
-        -- Make it un-moveable
-        if IsValid(phys) then
-            phys:EnableMotion(false)
-        end
-
+        self:WeldToGround(true)
         self:SetUseType(CONTINUOUS_USE)
 
         if GetConVar("ttt_pharaoh_ankh_place_sound"):GetBool() then
@@ -228,11 +223,56 @@ if SERVER then
     end
 
     function ENT:DestroyAnkh()
+        self:WeldToGround(false)
+
         local effect = EffectData()
         effect:SetOrigin(self:GetPos())
         util.Effect("cball_explode", effect)
         self:Remove()
     end
+
+    -- Copied from C4
+    function ENT:WeldToGround(state)
+        if state then
+           -- getgroundentity does not work for non-players
+           -- so sweep ent downward to find what we're lying on
+           local ignore = player.GetAll()
+           table.insert(ignore, self)
+
+           local tr = util.TraceEntity({ start = self:GetPos(), endpos = self:GetPos() - Vector(0, 0, 16), filter = ignore, mask = MASK_SOLID }, self)
+
+           -- Start by increasing weight/making uncarryable
+           local phys = self:GetPhysicsObject()
+           if IsValid(phys) then
+              -- Could just use a pickup flag for this. However, then it's easier to
+              -- push it around.
+              self.OrigMass = phys:GetMass()
+              phys:SetMass(150)
+           end
+
+           if tr.Hit and (IsValid(tr.Entity) or tr.HitWorld) then
+              -- "Attach" to a brush if possible
+              if IsValid(phys) and tr.HitWorld then
+                 phys:EnableMotion(false)
+              end
+
+              -- Else weld to objects we cannot pick up
+              local entphys = tr.Entity:GetPhysicsObject()
+              if IsValid(entphys) and entphys:GetMass() > CARRY_WEIGHT_LIMIT then
+                 constraint.Weld(self, tr.Entity, 0, 0, 0, true)
+              end
+
+              -- Worst case, we are still uncarryable
+           end
+        else
+           constraint.RemoveConstraints(self, "Weld")
+           local phys = self:GetPhysicsObject()
+           if IsValid(phys) then
+              phys:EnableMotion(true)
+              phys:SetMass(self.OrigMass or 10)
+           end
+        end
+     end
 end
 
 if CLIENT then
