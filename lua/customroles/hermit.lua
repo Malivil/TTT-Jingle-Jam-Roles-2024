@@ -232,6 +232,7 @@ if SERVER then
 
     AddHook("DoPlayerDeath", "Hermit_DoPlayerDeath", function(ply, attacker, dmg)
         if not IsPlayer(attacker) or attacker == ply or GetRoundState() ~= ROUND_ACTIVE then return end
+        if not IsPlayer(ply) or not ply:IsHermit() then return end
         if INNOCENT_ROLES[ROLE_HERMIT] or TRAITOR_ROLES[ROLE_HERMIT] then return end
 
         HermitKilledNotification(attacker, ply)
