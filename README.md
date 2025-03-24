@@ -142,6 +142,7 @@ ttt_pharaoh_respawn_warn_pharaoh   1    // Whether the original Pharaoh owner of
 ttt_pharaoh_ankh_health            500  // How much health the Ankh should have
 ttt_pharaoh_move_ankh              1    // Whether an Ankh's owner can move it
 ttt_pharaoh_ankh_place_sound       1    // Whether to play a sound when the Ankh is placed down
+ttt_pharaoh_ankh_aura_color_mode   2    // Determines what color the Ankh's aura should be. 0 - Disable. 1 - White. 2 - The placer's role color (same as 3 if "simplified" color mode is set). 3 - The placer's team color.
 ttt_pharaoh_ankh_heal_repair_dist  100  // The maximum distance away the Pharaoh can be for the heal and repair to occur. Set to 0 to disable
 ttt_pharaoh_ankh_heal_rate         1    // How often (in seconds) the Pharaoh should heal when they are near the Ankh. Set to 0 to disable
 ttt_pharaoh_ankh_heal_amount       1    // How much to heal the Pharaoh per tick when they are near the Ankh. Set to 0 to disable
