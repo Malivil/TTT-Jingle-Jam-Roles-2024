@@ -119,6 +119,12 @@ ROLE.convars = {
     {
         cvar = "ttt_pharaoh_update_scoreboard",
         type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
+        cvar = "ttt_pharaoh_ankh_aura_color_mode",
+        type = ROLE_CONVAR_TYPE_DROPDOWN,
+        choices = {"Disable", "White", "Role", "Team"},
+        isNumeric = true
     }
 }
 
@@ -145,6 +151,11 @@ Press {menukey} to receive your equipment!]]
 }
 
 RegisterRole(ROLE)
+
+PHARAOH_AURA_COLOR_MODE_DISABLE = 0
+PHARAOH_AURA_COLOR_MODE_WHITE = 1
+PHARAOH_AURA_COLOR_MODE_ROLE = 2
+PHARAOH_AURA_COLOR_MODE_TEAM = 3
 
 local pharaoh_is_detective = CreateConVar("ttt_pharaoh_is_detective", 0, FCVAR_REPLICATED, "Whether Pharaohs should be treated as a detective role", 0, 1)
 local pharaoh_is_independent = CreateConVar("ttt_pharaoh_is_independent", 0, FCVAR_REPLICATED, "Whether Pharaohs should be treated as independent. Ignored when \"ttt_pharaoh_is_detective\" is enabled", 0, 1)

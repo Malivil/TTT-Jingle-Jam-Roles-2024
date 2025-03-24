@@ -59,6 +59,7 @@ local ankh_heal_amount = CreateConVar("ttt_pharaoh_ankh_heal_amount", "1", FCVAR
 local ankh_repair_rate = CreateConVar("ttt_pharaoh_ankh_repair_rate", "1", FCVAR_REPLICATED, "How often (in seconds) the Ankh should repair when their Pharaoh is near. Set to 0 to disable", 0, 60)
 local ankh_repair_amount = CreateConVar("ttt_pharaoh_ankh_repair_amount", "5", FCVAR_REPLICATED, "How much to repair the Ankh per tick when their Pharaoh is near it. Set to 0 to disable", 0, 500)
 local ankh_heal_repair_dist = CreateConVar("ttt_pharaoh_ankh_heal_repair_dist", "100", FCVAR_REPLICATED, "The maximum distance away the Pharaoh can be for the heal and repair to occur. Set to 0 to disable", 0, 2000)
+local ankh_aura_color_mode = CreateConVar("ttt_pharaoh_ankh_aura_color_mode", "2", FCVAR_REPLICATED, "Determines what color the Ankh's aura should be. 0 - Disable. 1 - White. 2 - The placer's role color (same as 3 if \"simplified\" color mode is set). 3 - The placer's team color.", 0, 3)
 
 if SERVER then
     ENT.PlaceSound = Sound("phr/choir_and_bell_short.wav")
@@ -291,12 +292,27 @@ if CLIENT then
         self:DrawModel()
         self:DrawShadow(true)
 
+        local aura_color_mode = ankh_aura_color_mode:GetInt()
+        if aura_color_mode <= PHARAOH_AURA_COLOR_MODE_DISABLE then return end
+
+        local placer = self:GetPlacer()
+        if not IsPlayer(placer) then return end
+
         local pos = self:GetPos()
         local size = self.HealRadius * 2
 
+        local color
+        if aura_color_mode == PHARAOH_AURA_COLOR_MODE_WHITE then
+            color = COLOR_WHITE
+        elseif aura_color_mode == PHARAOH_AURA_COLOR_MODE_ROLE then
+            color = ROLE_COLORS[placer:GetRole()]
+        else
+            local roleTeam = player.GetRoleTeam(placer:GetRole())
+            _, color = GetRoleTeamInfo(roleTeam, true)
+        end
         CamStart3D()
             RenderSetMaterial(auraTexture)
-            RenderDrawQuadEasy(pos, auraNormal, size, size, COLOR_WHITE)
+            RenderDrawQuadEasy(pos, auraNormal, size, size, color)
         CamEnd3D()
     end
 
