@@ -81,6 +81,7 @@ AddHook("TTTSettingsRolesTabSections", "WheelBoy_TTTSettingsRolesTabSections", f
     parentForm:NumSlider(LANG.GetTranslation("wheelboy_config_wheel_offset_x"), "ttt_wheelboy_wheel_offset_x", 0, ScrW() - (wheelRadius * 2), 0)
     parentForm:NumSlider(LANG.GetTranslation("wheelboy_config_wheel_offset_y"), "ttt_wheelboy_wheel_offset_y", -height, height, 0)
     parentForm:Button(LANG.GetTranslation("wheelboy_config_wheel_offset_reset"), "ttt_wheelboy_wheel_offset_reset")
+    parentForm:CheckBox(LANG.GetTranslation("wheelboy_old_wheel_design"), "ttt_wheelboy_old_wheel_design")
     return true
 end)
 
@@ -347,6 +348,7 @@ local colors = {
     Color(214, 184, 0, 255),
     Color(248, 90, 3, 255),
     Color(254, 61, 113, 255),
+    Color(87, 58, 138, 255),
     Color(64, 143, 210, 255),
     Color(39, 179, 255, 255),
     Color(50, 163, 28, 255),
