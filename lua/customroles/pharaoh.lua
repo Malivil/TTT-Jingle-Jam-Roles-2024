@@ -186,6 +186,7 @@ AddHook("TTTUpdateRoleState", "Pharaoh_TTTUpdateRoleState", function()
     INDEPENDENT_ROLES[ROLE_PHARAOH] = is_independent
     INNOCENT_ROLES[ROLE_PHARAOH] = not is_independent
     DETECTIVE_ROLES[ROLE_PHARAOH] = is_detective
+    SHOP_ROLES[ROLE_PHARAOH] = is_detective or is_independent
 end)
 
 ----------------
