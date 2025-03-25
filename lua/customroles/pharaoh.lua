@@ -206,6 +206,7 @@ if SERVER then
     AddCSLuaFile()
 
     local pharaoh_warn_steal = CreateConVar("ttt_pharaoh_warn_steal", "1", FCVAR_NONE, "Whether to warn an Ankh's owner is warned when it is stolen", 0, 1)
+    local pharaoh_respawn_block_win = CreateConVar("ttt_pharaoh_respawn_block_win", 1, FCVAR_NONE, "Whether a player respawning via the Ankh blocks other teams from winning", 0, 1)
     local pharaoh_respawn_warn_pharaoh = CreateConVar("ttt_pharaoh_respawn_warn_pharaoh", 1, FCVAR_NONE, "Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else", 0, 1)
     local pharaoh_steal_grace_time = CreateConVar("ttt_pharaoh_steal_grace_time", 0.25, FCVAR_NONE, "How long (in seconds) before the steal progress of an Ankh is reset when a player stops looking at it", 0, 1)
 
@@ -328,6 +329,24 @@ if SERVER then
     ----------------
     -- WIN CHECKS --
     ----------------
+
+    AddHook("TTTWinCheckBlocks", "Pharaoh_TTTWinCheckBlocks", function(win_blocks)
+        if not pharaoh_respawn_block_win:GetBool() then return end
+
+        table.insert(win_blocks, function(win)
+            for _, v in PlayerIterator() do
+                if timer.Exists("TTTPharaohAnkhRespawn_" .. v:SteamID64()) then
+                    -- Don't bother blocking the win if this player's team is the one winning
+                    local roleTeam = v:GetRoleTeam(true)
+                    if (roleTeam == ROLE_TEAM_INNOCENT and win == WIN_INNOCENT) or
+                        (roleTeam == ROLE_TEAM_TRAITOR and win == WIN_TRAITOR) then
+                        continue
+                    end
+                    return WIN_NONE
+                end
+            end
+        end)
+    end)
 
     AddHook("Initialize", "Pharaoh_Initialize", function()
         WIN_PHARAOH = GenerateNewWinID(ROLE_PHARAOH)

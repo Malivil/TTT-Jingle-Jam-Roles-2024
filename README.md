@@ -139,6 +139,7 @@ ttt_pharaoh_independent_steal      1    // Whether independents are allowed to s
 ttt_pharaoh_monster_steal          1    // Whether monsters are allowed to steal the Ankh
 ttt_pharaoh_respawn_delay          20   // How long (in seconds) after death a Pharaoh should respawn if they placed down an Ankh. Set to 0 to disable respawning
 ttt_pharaoh_respawn_warn_pharaoh   1    // Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else
+ttt_pharaoh_respawn_block_win      1    // Whether a player respawning via the Ankh blocks other teams from winning
 ttt_pharaoh_ankh_health            500  // How much health the Ankh should have
 ttt_pharaoh_move_ankh              1    // Whether an Ankh's owner can move it
 ttt_pharaoh_ankh_place_sound       1    // Whether to play a sound when the Ankh is placed down
