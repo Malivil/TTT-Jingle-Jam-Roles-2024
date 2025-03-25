@@ -19,7 +19,6 @@ local FormatTime = util.SimpleTime
 local MathCos = math.cos
 local MathMin = math.min
 local MathRad = math.rad
-local MathRand = math.random
 local MathSin = math.sin
 local SurfaceDrawPoly = surface.DrawPoly
 local SurfaceDrawText = surface.DrawText
@@ -226,7 +225,7 @@ net.Receive("TTT_WheelBoySpinWheel", function()
 
     wheelStartTime = CurTime()
     wheelEndTime = wheelStartTime + wheel_time:GetInt()
-    wheelStartAngle = MathRand() * 360
+    wheelStartAngle = net.ReadFloat() * 360
 end)
 
 net.Receive("TTT_WheelBoyStopWheel", function()
