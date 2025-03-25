@@ -69,6 +69,10 @@ ROLE.convars = {
         type = ROLE_CONVAR_TYPE_BOOL
     },
     {
+        cvar = "ttt_pharaoh_respawn_block_win",
+        type = ROLE_CONVAR_TYPE_BOOL
+    },
+    {
         cvar = "ttt_pharaoh_ankh_health",
         type = ROLE_CONVAR_TYPE_NUM
     },
