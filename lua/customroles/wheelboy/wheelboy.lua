@@ -17,6 +17,8 @@ util.AddNetworkString("TTT_WheelBoySpinResult")
 util.AddNetworkString("TTT_WheelBoyStartEffect")
 util.AddNetworkString("TTT_WheelBoyFinishEffect")
 
+CreateConVar("ttt_wheelboy_reveal_spin", "0", FCVAR_NONE, "Whether the spinning wheel should be shown to everyone", 0, 1)
+
 CreateConVar("ttt_wheelboy_notify_mode", "0", FCVAR_NONE, "The logic to use when notifying players that wheel boy was killed. Killer is notified unless \"ttt_wheelboy_notify_killer\" is disabled", 0, 4)
 CreateConVar("ttt_wheelboy_notify_killer", "0", FCVAR_NONE, "Whether to notify wheel boy's killer", 0, 1)
 CreateConVar("ttt_wheelboy_notify_sound", "0", FCVAR_NONE, "Whether to play a cheering sound when wheel boy is killed", 0, 1)
@@ -230,12 +232,9 @@ local function ClearEffectsAndWheel(ply)
     end
 
     ClearEffects()
+
     net.Start("TTT_WheelBoyStopWheel")
-    if IsPlayer(ply) then
-        net.Send(ply)
-    else
-        net.Broadcast()
-    end
+    net.Broadcast()
 end
 
 AddHook("TTTEndRound", "WheelBoy_TTTBeginRound", function()

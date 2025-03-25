@@ -139,6 +139,7 @@ ttt_pharaoh_independent_steal      1    // Whether independents are allowed to s
 ttt_pharaoh_monster_steal          1    // Whether monsters are allowed to steal the Ankh
 ttt_pharaoh_respawn_delay          20   // How long (in seconds) after death a Pharaoh should respawn if they placed down an Ankh. Set to 0 to disable respawning
 ttt_pharaoh_respawn_warn_pharaoh   1    // Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else
+ttt_pharaoh_respawn_block_win      1    // Whether a player respawning via the Ankh blocks other teams from winning
 ttt_pharaoh_ankh_health            500  // How much health the Ankh should have
 ttt_pharaoh_move_ankh              1    // Whether an Ankh's owner can move it
 ttt_pharaoh_ankh_place_sound       1    // Whether to play a sound when the Ankh is placed down
@@ -214,8 +215,9 @@ ttt_wheelboy_starting_health     150  // The amount of health Wheel Boy starts w
 ttt_wheelboy_max_health          150  // The maximum amount of health Wheel Boy can have
 ttt_wheelboy_wheel_time          15   // How long the wheel should spin for
 ttt_wheelboy_wheel_recharge_time 45   // How long Wheel Boy must wait between wheel spins
-ttt_wheelboy_spins_to_win        3    // How many times Wheel Boy must spin their wheel to win
 ttt_wheelboy_wheel_end_wait_time 5    // How long the wheel should wait at the end, showing the result, before it hides
+ttt_wheelboy_spins_to_win        3    // How many times Wheel Boy must spin their wheel to win
+ttt_wheelboy_reveal_spin         0    // Whether the spinning wheel should be shown to everyone
 ttt_wheelboy_announce_text       1    // Whether to announce that there is a Wheel Boy via text
 ttt_wheelboy_announce_sound      1    // Whether to announce that there is a Wheel Boy via a sound clip
 ttt_wheelboy_speed_mult          1.2  // The multiplier to use on Wheel Boy's movement speed (e.g. 1.2 = 120% normal speed)

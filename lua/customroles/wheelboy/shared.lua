@@ -64,6 +64,10 @@ ROLE.convars =
         type = ROLE_CONVAR_TYPE_NUM
     },
     {
+        cvar = "ttt_wheelboy_reveal_spin",
+        type = ROLE_CONVAR_TYPE_NUM
+    },
+    {
         cvar = "ttt_wheelboy_swap_on_kill",
         type = ROLE_CONVAR_TYPE_BOOL
     },

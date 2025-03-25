@@ -19,7 +19,6 @@ local FormatTime = util.SimpleTime
 local MathCos = math.cos
 local MathMin = math.min
 local MathRad = math.rad
-local MathRand = math.random
 local MathSin = math.sin
 local SurfaceDrawPoly = surface.DrawPoly
 local SurfaceDrawText = surface.DrawText
@@ -48,6 +47,7 @@ local wheel_offset_y = CreateClientConVar("ttt_wheelboy_wheel_offset_y", "0", tr
 local old_wheel_design = CreateClientConVar("ttt_wheelboy_old_wheel_design", "0", true, false, "Should Wheel Boy's wheel use the old design instead of the current one")
 
 local wheelRadius = 250
+local client = nil
 
 local wheelStartTime = nil
 local wheelEndTime = nil
@@ -99,12 +99,12 @@ end)
 -- HUD --
 ---------
 
-AddHook("TTTHUDInfoPaint", "WheelBoy_TTTHUDInfoPaint", function(client, label_left, label_top, active_labels)
+AddHook("TTTHUDInfoPaint", "WheelBoy_TTTHUDInfoPaint", function(cli, label_left, label_top, active_labels)
     if hide_role:GetBool() then return end
-    if not client:IsActiveWheelBoy() then return end
+    if not cli:IsActiveWheelBoy() then return end
 
     local curTime = CurTime()
-    local nextSpinTime = client:GetNWInt("WheelBoyNextSpinTime", nil)
+    local nextSpinTime = cli:GetNWInt("WheelBoyNextSpinTime", nil)
     local nextSpinLabel
     if nextSpinTime == nil or curTime >= nextSpinTime then
         nextSpinLabel = LANG.GetTranslation("wheelboy_spin_hud_now")
@@ -225,7 +225,7 @@ net.Receive("TTT_WheelBoySpinWheel", function()
 
     wheelStartTime = CurTime()
     wheelEndTime = wheelStartTime + wheel_time:GetInt()
-    wheelStartAngle = MathRand() * 360
+    wheelStartAngle = net.ReadFloat() * 360
 end)
 
 net.Receive("TTT_WheelBoyStopWheel", function()
@@ -235,7 +235,9 @@ end)
 -- Effects --
 
 net.Receive("TTT_WheelBoyStartEffect", function()
-    local client = LocalPlayer()
+    if not IsPlayer(client) then
+        client = LocalPlayer()
+    end
     if not IsPlayer(client) then return end
 
     local effectIdx = net.ReadUInt(4)
@@ -481,6 +483,11 @@ end
 AddHook("HUDPaint", "WheelBoy_Wheel_HUDPaint", function()
     if not wheelStartTime then return end
 
+    if not IsPlayer(client) then
+        client = LocalPlayer()
+    end
+    if not IsPlayer(client) then return end
+
     local segmentCount = #colors
     local anglePerSegment = (360 / segmentCount)
 
@@ -552,7 +559,7 @@ AddHook("HUDPaint", "WheelBoy_Wheel_HUDPaint", function()
     if blinkStart == nil and curTime >= wheelEndTime then
         -- Display message telling wheelboy what was chosen if there is a delay before it takes effect
         if waitTime > 0 then
-            LocalPlayer():QueueMessage(MSG_PRINTBOTH, "The wheel has landed on '" .. WHEELBOY.Effects[currentSegment].name .. "'! It will take effect in " .. waitTime .. " second(s)")
+            client:QueueMessage(MSG_PRINTBOTH, "The wheel has landed on '" .. WHEELBOY.Effects[currentSegment].name .. "'! It will take effect in " .. waitTime .. " second(s)")
         end
         blinkStart = curTime
     end
@@ -579,9 +586,12 @@ AddHook("HUDPaint", "WheelBoy_Wheel_HUDPaint", function()
     if curTime >= wheelEndTime + waitTime then
         ResetWheelState()
 
-        net.Start("TTT_WheelBoySpinResult")
-            net.WriteUInt(currentSegment, 4)
-        net.SendToServer()
+        -- In case we're sharing the wheel with everyone, only let Wheelboy themselves tell the server the results
+        if client:IsWheelBoy() then
+            net.Start("TTT_WheelBoySpinResult")
+                net.WriteUInt(currentSegment, 4)
+            net.SendToServer()
+        end
     end
 end)
 
