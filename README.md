@@ -215,8 +215,9 @@ ttt_wheelboy_starting_health     150  // The amount of health Wheel Boy starts w
 ttt_wheelboy_max_health          150  // The maximum amount of health Wheel Boy can have
 ttt_wheelboy_wheel_time          15   // How long the wheel should spin for
 ttt_wheelboy_wheel_recharge_time 45   // How long Wheel Boy must wait between wheel spins
-ttt_wheelboy_spins_to_win        3    // How many times Wheel Boy must spin their wheel to win
 ttt_wheelboy_wheel_end_wait_time 5    // How long the wheel should wait at the end, showing the result, before it hides
+ttt_wheelboy_spins_to_win        3    // How many times Wheel Boy must spin their wheel to win
+ttt_wheelboy_reveal_spin         0    // Whether the spinning wheel should be shown to everyone
 ttt_wheelboy_announce_text       1    // Whether to announce that there is a Wheel Boy via text
 ttt_wheelboy_announce_sound      1    // Whether to announce that there is a Wheel Boy via a sound clip
 ttt_wheelboy_speed_mult          1.2  // The multiplier to use on Wheel Boy's movement speed (e.g. 1.2 = 120% normal speed)

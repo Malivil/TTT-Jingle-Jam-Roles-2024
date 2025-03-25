@@ -71,7 +71,11 @@ function SWEP:PrimaryAttack()
         local recharge_time = GetConVar("ttt_wheelboy_wheel_recharge_time"):GetInt()
         owner:SetNWInt("WheelBoyNextSpinTime", curTime + recharge_time)
         net.Start("TTT_WheelBoySpinWheel")
-        net.Send(owner)
+        if GetConVar("ttt_wheelboy_reveal_spin"):GetBool() then
+            net.Broadcast()
+        else
+            net.Send(owner)
+        end
     else
         owner:QueueMessage(MSG_PRINTCENTER, "Your weak muscles haven't recovered enough to spin again yet...")
     end
