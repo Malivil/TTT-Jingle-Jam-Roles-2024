@@ -68,10 +68,6 @@ ROLE.convars = {
     }
 }
 
-ROLE.selectionpredicate = function()
-    return CRVersion("2.2.9")
-end
-
 ROLE.translations = {
     ["english"] = {
         ["poisoner_poisoned"] = "POISONED",
