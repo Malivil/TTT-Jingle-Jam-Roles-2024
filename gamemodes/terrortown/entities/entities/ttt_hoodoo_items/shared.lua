@@ -69,22 +69,28 @@ if SERVER then
 
     -- Prevent multiple of the same randomats from triggering
     hook.Add("TTTCanOrderEquipment", "Hoodoo_TTTCanOrderEquipment", function(ply, id, is_item)
-        if not is_item then return end
+        if is_item then
+            id = math.floor(id)
 
-        id = math.floor(id)
-        if IsHoodooItem(id) then
-            local item = GetEquipmentItemById(id)
+            if IsHoodooItem(id) then
+                local item = GetEquipmentItemById(id)
 
-            if ply:IsHoodoo() and Randomat:IsEventActive(item.eventid) then
-                ply:QueueMessage(MSG_PRINTCENTER, "That's already in effect!")
-                return false
+                if ply:IsHoodoo() and Randomat:IsEventActive(item.eventid) then
+                    ply:QueueMessage(MSG_PRINTCENTER, "That's already in effect!")
+                    return false
+                end
             end
+        elseif ply:IsRoleAbilityDisabled() then
+            ply:SubtractCredits(1)
+            return false
         end
     end)
 
     local triggeredEvents = {}
     -- Trigger a randomat event when a hoodoo item is bought
     hook.Add("TTTOrderedEquipment", "Hoodoo_TTTOrderedEquipment_TrackTriggeredEvents", function(ply, id, is_item)
+        if ply:IsRoleAbilityDisabled() then return end
+
         if is_item and IsHoodooItem(id) then
             local item = GetEquipmentItemById(id)
 
