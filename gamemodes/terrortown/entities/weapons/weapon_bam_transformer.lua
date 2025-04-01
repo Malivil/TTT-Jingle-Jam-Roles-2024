@@ -2,6 +2,7 @@ local ents = ents
 local math = math
 
 local EntsCreate = ents.Create
+local EntsFindByModel = ents.FindByModel
 local MathCeil = math.ceil
 
 AddCSLuaFile()
@@ -49,6 +50,7 @@ SWEP.Secondary.Cone         = 0
 SWEP.Secondary.Ammo         = nil
 SWEP.Secondary.Sound        = ""
 
+SWEP.BarrelModel            = "models/props_c17/oildrum001_explosive.mdl"
 SWEP.Barrel                 = nil
 SWEP.TransformBackTime      = nil
 
@@ -57,6 +59,14 @@ function SWEP:Initialize()
 
     if CLIENT then
         self:AddHUDHelp("bam_transformer_help_pri", "bam_transformer_help_sec", true)
+    end
+    if SERVER then
+        -- If this map has an explosive barrel on it, use their model
+        local barrelEnts = EntsFindByModel("models/*/oildrum001_explosive.mdl")
+        for _, e in ipairs(barrelEnts) do
+            self.BarrelModel = e:GetModel()
+            break
+        end
     end
     return self.BaseClass.Initialize(self)
 end
@@ -88,7 +98,7 @@ function SWEP:PrimaryAttack()
     local pos = owner:GetPos()
     local velocity = owner:GetVelocity()
 
-    ent:SetModel("models/props_c17/oildrum001_explosive.mdl")
+    ent:SetModel(self.BarrelModel)
     ent:SetPos(pos)
     ent.BarrelMimic = owner
     ent:Spawn()
