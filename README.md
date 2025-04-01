@@ -154,10 +154,10 @@ ttt_pharaoh_warn_damage            1    // Whether to warn an Ankh's owner is wa
 ttt_pharaoh_warn_destroy           1    // Whether to warn an Ankh's owner is warned when it is destroyed
 ttt_pharaoh_warn_steal             1    // Whether to warn an Ankh's owner is warned when it is stolen
 ttt_pharaoh_steal_grace_time       0.25 // How long (in seconds) before the steal progress of an Ankh is reset when a player stops looking at it
-ttt_pharaoh_credits_starting       1    // The number of credits a Pharaoh should start with. Only used when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_credits_starting       1    // The number of credits a Pharaoh should start with. Only used when "ttt_pharaoh_is_independent" or "ttt_pharaoh_is_detective" is enabled
 ttt_pharaoh_shop_sync              0    // Whether pharaohs should have all weapons that vanilla detectives have in their weapon shop. Only used when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_shop_random_enabled    0    // Whether role shop randomization is enabled for pharaohs. Only used when "ttt_pharaoh_is_detective" is enabled
-ttt_pharaoh_shop_random_percent    0    // The percent chance that a weapon in the shop will be not be shown for pharaohs. Only used when "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_shop_random_enabled    0    // Whether role shop randomization is enabled for pharaohs. Only used when "ttt_pharaoh_is_independent" or "ttt_pharaoh_is_detective" is enabled
+ttt_pharaoh_shop_random_percent    0    // The percent chance that a weapon in the shop will be not be shown for pharaohs. Only used when "ttt_pharaoh_is_independent" or "ttt_pharaoh_is_detective" is enabled
 ttt_pharaoh_can_see_jesters        1    // Whether jesters are revealed (via head icons, color/icon on the scoreboard, etc.) to Pharaohs. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
 ttt_pharaoh_update_scoreboard      1    // Whether Pharaohs see dead players as missing in action on the scoreboard. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
 ```
