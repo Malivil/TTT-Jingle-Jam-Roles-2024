@@ -3,7 +3,7 @@ A pack of [Custom Roles for TTT](https://github.com/Custom-Roles-for-TTT/TTT-Cus
 
 # Roles
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/bam/tab_bam.png)Barrel Mimic
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/bam/tab_bam.png) Barrel Mimic
 _Suggested By_: Corvatile\
 The Barrel Mimic is a jester role that can transform into a barrel. If their barrel is exploded and kills another player, they win!
 \
@@ -24,7 +24,7 @@ ttt_barrelmimic_notify_sound        0   // Whether to play a cheering sound when
 ttt_barrelmimic_notify_confetti     0   // Whether to throw confetti when a Barrel Mimic is a killed
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/her/tab_her.png)Hermit
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/her/tab_her.png) Hermit
 _Suggested By_: Spaaz\
 The Hermit is a jester role that joins the team of any players that give them a shop item by becoming a Monk or a Zealot.\
 _Requires [Custom Roles for TTT Jingle Jam 2023 Roles Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3205649099) to be installed._
@@ -50,7 +50,7 @@ ttt_hermit_notify_sound                 0   // Whether to play a cheering sound 
 ttt_hermit_notify_confetti              0   // Whether to throw confetti when a Hermit is a killed
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/hoo/tab_hoo.png)Hoodoo
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/hoo/tab_hoo.png) Hoodoo
 _Suggested By_: Corvatile\
 _Based On_: Randoman, by The Stig\
 The Hoodoo is a traitor role who is able to buy traitor-focused  events, rather than normal traitor items.\
@@ -79,7 +79,7 @@ ttt_hoodoo_shop_random_percent        0      // The percent chance that a weapon
 ttt_hoodoo_shop_random_enabled        0      // Whether role shop randomization is enabled for the Hoodoo
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/mis/tab_mis.png)Missionary
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/mis/tab_mis.png) Missionary
 _Suggested By_: Spaaz\
 The Missionary is a detective role that can turn a player into a Monk, Zealot or Hermit depending on what team that player was one.\
 _Requires [Custom Roles for TTT Jingle Jam 2023 Roles Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3205649099) to be installed._
@@ -101,7 +101,7 @@ ttt_missionary_shop_random_percent  0   // The percent chance that a weapon in t
 ttt_missionary_shop_random_enabled  0   // Whether role shop randomization is enabled for the Missionary
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/mon/tab_mon.png)Monk
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/mon/tab_mon.png) Monk
 _Suggested By_: Spaaz\
 The Monk is an innocent role that can use chat to speak with the living after they die.\
 _Requires [Custom Roles for TTT Jingle Jam 2023 Roles Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3205649099) to be installed._
@@ -116,7 +116,7 @@ ttt_monk_starting_health        100 // The amount of health the Monk starts with
 ttt_monk_max_health             100 // The maximum amount of health the Monk can have
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/phr/tab_phr.png)Pharaoh
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/phr/tab_phr.png) Pharaoh
 _Suggested By_: Fat_Medibirb\
 _Based On_: [\[TTT2\] Pharaoh](https://steamcommunity.com/sharedfiles/filedetails/?id=2002040119), by Tim | Mineotopia\
 The Pharaoh is an innocent role that can place an Ankh in the world somewhere. If they die, they consume the Ankh and respawn where it was placed.
@@ -162,7 +162,7 @@ ttt_pharaoh_can_see_jesters        1    // Whether jesters are revealed (via hea
 ttt_pharaoh_update_scoreboard      1    // Whether Pharaohs see dead players as missing in action on the scoreboard. Only used when "ttt_pharaoh_is_independent" is enabled and "ttt_pharaoh_is_detective" is disabled
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/pnr/tab_pnr.png)Poisoner
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/pnr/tab_pnr.png) Poisoner
 _Suggested By_: /u/HereForTOMT3\
 The Poisoner is a traitor role that can poison a target, disabling that player's role ability.
 \
@@ -189,7 +189,7 @@ ttt_poisoner_can_see_jesters        1           // Whether jesters are revealed 
 ttt_poisoner_update_scoreboard      1           // Whether Poisoners see dead players as missing in action on the scoreboard. Only used when "ttt_poisoner_is_independent" is enabled and "ttt_poisoner_is_detective" is disabled
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/wwf/tab_wwf.png)Werewolf
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/wwf/tab_wwf.png) Werewolf
 _Contributed By_: Nick\
 The Werewolf is an independent role who wins by being the last one standing, but can only kill under the cover of night.\
 _Requires [Fenrir (Smite) Playermodel](https://steamcommunity.com/sharedfiles/filedetails/?id=497666467) for visual werewolf transformation._
@@ -228,7 +228,7 @@ ttt_werewolf_can_see_jesters        1    // Whether jesters are revealed (via he
 ttt_werewolf_update_scoreboard      1    // Whether Werewolves see dead players as missing in action on the scoreboard. Only used when "ttt_werewolf_is_monster" is disabled
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/whl/tab_whl.png)Wheel Boy
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/whl/tab_whl.png) Wheel Boy
 _Suggested By_: spammonster\
 Wheel Boy is a jester role that can spin a wheel to apply random effects to everyone. Spin enough times and they win.
 \
@@ -256,7 +256,7 @@ ttt_wheelboy_notify_sound        0    // Whether to play a cheering sound when a
 ttt_wheelboy_notify_confetti     0    // Whether to throw confetti when a Wheel Boy is a killed
 ```
 
-## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/zea/tab_zea.png)Zealot
+## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/zea/tab_zea.png) Zealot
 _Suggested By_: Spaaz\
 The Zealot is a traitor role that becomes a Soulbound who can use special abilities while spectating if they die.\
 _Requires [Custom Roles for TTT Jingle Jam 2023 Roles Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3205649099) to be installed._
