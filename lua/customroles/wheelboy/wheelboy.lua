@@ -255,3 +255,9 @@ AddHook("TTTPlayerRoleChanged", "WheelBoy_TTTPlayerRoleChanged", function(ply, o
         spinCount = 0
     end
 end)
+
+AddHook("PlayerDisconnected", "WheelBoy_PlayerDisconnected", function(ply)
+    if not IsPlayer(ply) then return end
+    if not ply:IsWheelBoy() then return end
+    ClearEffectsAndWheel(ply)
+end)
