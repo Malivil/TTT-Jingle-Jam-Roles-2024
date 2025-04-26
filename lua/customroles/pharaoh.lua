@@ -214,11 +214,15 @@ if SERVER then
     local pharaoh_respawn_warn_pharaoh = CreateConVar("ttt_pharaoh_respawn_warn_pharaoh", 1, FCVAR_NONE, "Whether the original Pharaoh owner of an Ankh should be notified when it's used by someone else", 0, 1)
     local pharaoh_steal_grace_time = CreateConVar("ttt_pharaoh_steal_grace_time", 0.25, FCVAR_NONE, "How long (in seconds) before the steal progress of an Ankh is reset when a player stops looking at it", 0, 1)
 
-    local function ResetState(ply)
-        timer.Remove("TTTPharaohAnkhRespawn_" .. ply:SteamID64())
+    local function ResetStealState(ply)
         ply:ClearProperty("PharaohStealTarget", ply)
         ply:ClearProperty("PharaohStealStart", ply)
         ply.PharaohLastStealTime = nil
+    end
+
+    local function ResetState(ply)
+        ResetStealState(ply)
+        timer.Remove("TTTPharaohAnkhRespawn_" .. ply:SteamID64())
         ply.PharaohAnkh = nil
     end
 
@@ -226,8 +230,18 @@ if SERVER then
     -- RESPAWNING --
     ----------------
 
+    -- Something else respawned this player, stop the timer and don't use the ankh
+    AddHook("TTTPlayerSpawnForRound", "Pharaoh_TTTPlayerSpawnForRound", function(ply, dead_only)
+        if dead_only and ply:Alive() and not ply:IsSpec() then return end
+        timer.Remove("TTTPharaohAnkhRespawn_" .. ply:SteamID64())
+    end)
+
     AddHook("PostPlayerDeath", "Pharaoh_PostPlayerDeath", function(ply)
         if not IsPlayer(ply) then return end
+
+        -- If a player died the can't be stealing the ankh anymore, so clear that state
+        ResetStealState(ply)
+
         if not IsValid(ply.PharaohAnkh) then return end
         if ply:IsPharaoh() and ply:IsRoleAbilityDisabled() then
             ply.PharaohAnkh:DestroyAnkh()
