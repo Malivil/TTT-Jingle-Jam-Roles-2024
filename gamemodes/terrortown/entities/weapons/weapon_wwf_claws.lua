@@ -162,7 +162,7 @@ function SWEP:PrimaryAttack()
             if hitEnt:IsPlayer() or hitEnt:GetClass() == "prop_ragdoll" then
                 util.Effect("BloodImpact", edata)
                 owner:LagCompensation(false)
-                owner:FireBullets({ Num = 1, Src = spos, Dir = owner:GetAimVector(), Spread = vector_origin, Tracer = 0, Force = 1, Damage = 0 })
+                owner:FireBullets({ Attacker = owner, Inflictor = self, Num = 1, Src = spos, Dir = owner:GetAimVector(), Spread = vector_origin, Tracer = 0, Force = 1, Damage = 0 })
 
                 owner:EmitSound(fleshSounds[math.random(1, #fleshSounds)])
             else
