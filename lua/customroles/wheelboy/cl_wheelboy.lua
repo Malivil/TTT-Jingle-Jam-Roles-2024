@@ -150,6 +150,14 @@ net.Receive("TTT_UpdateWheelBoyWins", function()
     }, 1)
 end)
 
+AddHook("TTTPlayerRoleChanged", "WheelBoy_WinTracking_TTTPlayerRoleChanged", function(ply, oldRole, newRole)
+    if not ply:Alive() or ply:IsSpec() then return end
+    if oldRole == newRole then return end
+    if oldRole ~= ROLE_WHEELBOY then return end
+
+    wheelboyWins = false
+end)
+
 local function ResetWheelBoyWin()
     wheelboyWins = false
     ResetWheelState()
@@ -173,13 +181,13 @@ end)
 ------------
 
 AddHook("TTTEventFinishText", "WheelBoy_TTTEventFinishText", function(e)
-    if e.win == WIN_WHEELBOY then
+    if wheelboyWins and e.win == WIN_WHEELBOY then
         return LANG.GetParamTranslation("ev_win_wheelboy", { role = string.lower(ROLE_STRINGS[ROLE_WHEELBOY]) })
     end
 end)
 
 AddHook("TTTEventFinishIconText", "WheelBoy_TTTEventFinishIconText", function(e, win_string, role_string)
-    if e.win == WIN_WHEELBOY then
+    if wheelboyWins and e.win == WIN_WHEELBOY then
         return "ev_win_icon_also", ROLE_STRINGS[ROLE_WHEELBOY]
     end
 end)
