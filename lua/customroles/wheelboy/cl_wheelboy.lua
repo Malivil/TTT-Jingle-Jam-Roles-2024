@@ -150,6 +150,14 @@ net.Receive("TTT_UpdateWheelBoyWins", function()
     }, 1)
 end)
 
+AddHook("TTTPlayerRoleChanged", "WheelBoy_WinTracking_TTTPlayerRoleChanged", function(ply, oldRole, newRole)
+    if not ply:Alive() or ply:IsSpec() then return end
+    if oldRole == newRole then return end
+    if oldRole ~= ROLE_WHEELBOY then return end
+
+    wheelboyWins = false
+end)
+
 local function ResetWheelBoyWin()
     wheelboyWins = false
     ResetWheelState()
@@ -242,19 +250,21 @@ net.Receive("TTT_WheelBoyStartEffect", function()
 
     local effectIdx = net.ReadUInt(4)
     if effectIdx > 0 and effectIdx <= #WHEELBOY.Effects then
-        local result = WHEELBOY.Effects[effectIdx]
-        if result.times == nil then
-            result.times = 0
+        local effect = WHEELBOY.Effects[effectIdx]
+        if effect.times == nil then
+            effect.times = 0
         end
-        result.times = result.times + 1
-        result.start(client, result)
+        effect.times = effect.times + 1
+        effect.start(client, effect)
     end
 end)
 
 net.Receive("TTT_WheelBoyFinishEffect", function()
     local effectIdx = net.ReadUInt(4)
     if effectIdx > 0 and effectIdx <= #WHEELBOY.Effects then
-        WHEELBOY.Effects[effectIdx].finish()
+        local effect = WHEELBOY.Effects[effectIdx]
+        effect.finish()
+        effect.times = 0
     end
 end)
 

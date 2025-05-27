@@ -90,8 +90,8 @@ net.Receive("TTT_WheelBoySpinResult", function(len, ply)
     if ply:IsRoleAbilityDisabled() then return end
 
     local chosenSegment = net.ReadUInt(4)
-    local result = WHEELBOY.Effects[chosenSegment]
-    if not result then return end
+    local effect = WHEELBOY.Effects[chosenSegment]
+    if not effect then return end
 
     -- If we haven't already won
     if spinCount ~= nil then
@@ -107,17 +107,17 @@ net.Receive("TTT_WheelBoySpinResult", function(len, ply)
 
     -- Let everyone know what the wheel landed on
     for _, p in PlayerIterator() do
-        p:QueueMessage(MSG_PRINTBOTH, ROLE_STRINGS[ROLE_WHEELBOY] .. "'s wheel has landed on '" .. result.name .. "'!")
+        p:QueueMessage(MSG_PRINTBOTH, ROLE_STRINGS[ROLE_WHEELBOY] .. "'s wheel has landed on '" .. effect.name .. "'!")
     end
 
-    -- Run the associated function with the chosen result
-    if result.times == nil then
-        result.times = 0
+    -- Run the associated function with the chosen effect
+    if effect.times == nil then
+        effect.times = 0
     end
-    result.times = result.times + 1
-    result.start(ply, result)
+    effect.times = effect.times + 1
+    effect.start(ply, effect)
     -- If this effect is shared, then send a message to the client so it knows to do something too
-    if result.shared then
+    if effect.shared then
         net.Start("TTT_WheelBoyStartEffect")
             net.WriteUInt(chosenSegment, 4)
         net.Broadcast()
@@ -152,45 +152,6 @@ AddHook("TTTRandomatCanEventRun", "WheelBoy_TTTRandomatCanEventRun", function(ev
     end
 end)
 
----------------
--- ROLE SWAP --
----------------
-
-local function WheelBoyKilledNotification(attacker, victim)
-    JesterTeamKilledNotification(attacker, victim,
-        -- getkillstring
-        function()
-            return attacker:Nick() .. " silenced " .. ROLE_STRINGS[ROLE_WHEELBOY] .. "!"
-        end)
-end
-
-AddHook("PlayerDeath", "WheelBoy_Swap_PlayerDeath", function(victim, infl, attacker)
-    -- This gets set to nil when the spin count exceeds the win condition (aka, the wheelboy has won)
-    if spinCount == nil then return end
-    if not swap_on_kill:GetBool() then return end
-
-    local valid_kill = IsPlayer(attacker) and attacker ~= victim and GetRoundState() == ROUND_ACTIVE
-    if not valid_kill then return end
-    if not victim:IsWheelBoy() then return end
-
-    WheelBoyKilledNotification(attacker, victim)
-
-    -- Keep track o the killer for the scoreboard
-    attacker:SetNWString("WheelBoyKilled", victim:Nick())
-
-    -- Swap roles
-    victim:SetRole(attacker:GetRole())
-    attacker:MoveRoleState(victim)
-    attacker:SetRole(ROLE_WHEELBOY)
-    attacker:StripRoleWeapons()
-    RunHook("PlayerLoadout", attacker)
-    SendFullStateUpdate()
-
-    -- Tell the new wheelboy what happened and what to do now
-    attacker:QueueMessage(MSG_PRINTBOTH, "You killed " .. ROLE_STRINGS[ROLE_WHEELBOY] .. " and have become the new " .. ROLE_STRINGS[ROLE_WHEELBOY])
-    attacker:QueueMessage(MSG_PRINTBOTH, "Spin your wheel " .. spins_to_win:GetInt() .. " time(s) to win")
-end)
-
 -------------
 -- CLEANUP --
 -------------
@@ -199,6 +160,7 @@ local function ClearEffects()
     -- End all of the effects
     for effectIdx, effect in ipairs(WHEELBOY.Effects) do
         effect.finish()
+        effect.times = 0
 
         -- If this effect is shared, then send a message to the client so it knows to do something too
         if effect.shared then
@@ -245,8 +207,6 @@ end)
 AddHook("TTTPlayerRoleChanged", "WheelBoy_TTTPlayerRoleChanged", function(ply, oldRole, newRole)
     if oldRole == newRole then return end
     -- Clear effects if wheelboy's role is changed
-    -- This has the secondary effect of encouraging people to
-    -- kill wheelboy to stop any current annoying effects
     if oldRole == ROLE_WHEELBOY then
         ClearEffectsAndWheel(ply)
     -- If there's a new wheelboy, reset the spin count so
@@ -260,4 +220,48 @@ AddHook("PlayerDisconnected", "WheelBoy_PlayerDisconnected", function(ply)
     if not IsPlayer(ply) then return end
     if not ply:IsWheelBoy() then return end
     ClearEffectsAndWheel(ply)
+end)
+
+-----------------
+-- DEATH LOGIC --
+-----------------
+
+local function WheelBoyKilledNotification(attacker, victim)
+    JesterTeamKilledNotification(attacker, victim,
+        -- getkillstring
+        function()
+            return attacker:Nick() .. " silenced " .. ROLE_STRINGS[ROLE_WHEELBOY] .. "!"
+        end)
+end
+
+AddHook("PlayerDeath", "WheelBoy_DeathLogic_PlayerDeath", function(victim, infl, attacker)
+    if not victim:IsWheelBoy() then return end
+
+    -- Incentivize killing the Wheel Boy if their effects are annoying
+    ClearEffectsAndWheel(victim)
+
+    local valid_kill = IsPlayer(attacker) and attacker ~= victim and GetRoundState() == ROUND_ACTIVE
+    if not valid_kill then return end
+
+    WheelBoyKilledNotification(attacker, victim)
+
+    -- This gets set to nil when the spin count exceeds the win condition (aka, the wheelboy has won)
+    -- If the Wheel Boy has won, don't swap roles when someone kills them
+    if spinCount == nil then return end
+    if not swap_on_kill:GetBool() then return end
+
+    -- Keep track of the killer for the scoreboard
+    attacker:SetNWString("WheelBoyKilled", victim:Nick())
+
+    -- Swap roles
+    victim:SetRole(attacker:GetRole())
+    attacker:MoveRoleState(victim)
+    attacker:SetRole(ROLE_WHEELBOY)
+    attacker:StripRoleWeapons()
+    RunHook("PlayerLoadout", attacker)
+    SendFullStateUpdate()
+
+    -- Tell the new wheelboy what happened and what to do now
+    attacker:QueueMessage(MSG_PRINTBOTH, "You killed " .. ROLE_STRINGS[ROLE_WHEELBOY] .. " and have become the new " .. ROLE_STRINGS[ROLE_WHEELBOY])
+    attacker:QueueMessage(MSG_PRINTBOTH, "Spin your wheel " .. spins_to_win:GetInt() .. " time(s) to win")
 end)
