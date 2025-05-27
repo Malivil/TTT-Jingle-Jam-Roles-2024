@@ -114,7 +114,7 @@ net.Receive("TTT_WheelBoySpinResult", function(len, ply)
     if effect.times == nil then
         effect.times = 0
     end
-    effect.times = result.times + 1
+    effect.times = effect.times + 1
     effect.start(ply, effect)
     -- If this effect is shared, then send a message to the client so it knows to do something too
     if effect.shared then
