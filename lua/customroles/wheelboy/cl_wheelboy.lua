@@ -181,13 +181,13 @@ end)
 ------------
 
 AddHook("TTTEventFinishText", "WheelBoy_TTTEventFinishText", function(e)
-    if wheelboyWins and e.win == WIN_WHEELBOY then
+    if e.win == WIN_WHEELBOY then
         return LANG.GetParamTranslation("ev_win_wheelboy", { role = string.lower(ROLE_STRINGS[ROLE_WHEELBOY]) })
     end
 end)
 
 AddHook("TTTEventFinishIconText", "WheelBoy_TTTEventFinishIconText", function(e, win_string, role_string)
-    if wheelboyWins and e.win == WIN_WHEELBOY then
+    if e.win == WIN_WHEELBOY then
         return "ev_win_icon_also", ROLE_STRINGS[ROLE_WHEELBOY]
     end
 end)
