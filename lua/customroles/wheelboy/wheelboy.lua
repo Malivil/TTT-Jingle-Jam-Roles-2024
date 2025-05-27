@@ -90,8 +90,8 @@ net.Receive("TTT_WheelBoySpinResult", function(len, ply)
     if ply:IsRoleAbilityDisabled() then return end
 
     local chosenSegment = net.ReadUInt(4)
-    local result = WHEELBOY.Effects[chosenSegment]
-    if not result then return end
+    local effect = WHEELBOY.Effects[chosenSegment]
+    if not effect then return end
 
     -- If we haven't already won
     if spinCount ~= nil then
@@ -107,17 +107,17 @@ net.Receive("TTT_WheelBoySpinResult", function(len, ply)
 
     -- Let everyone know what the wheel landed on
     for _, p in PlayerIterator() do
-        p:QueueMessage(MSG_PRINTBOTH, ROLE_STRINGS[ROLE_WHEELBOY] .. "'s wheel has landed on '" .. result.name .. "'!")
+        p:QueueMessage(MSG_PRINTBOTH, ROLE_STRINGS[ROLE_WHEELBOY] .. "'s wheel has landed on '" .. effect.name .. "'!")
     end
 
-    -- Run the associated function with the chosen result
-    if result.times == nil then
-        result.times = 0
+    -- Run the associated function with the chosen effect
+    if effect.times == nil then
+        effect.times = 0
     end
-    result.times = result.times + 1
-    result.start(ply, result)
+    effect.times = result.times + 1
+    effect.start(ply, effect)
     -- If this effect is shared, then send a message to the client so it knows to do something too
-    if result.shared then
+    if effect.shared then
         net.Start("TTT_WheelBoyStartEffect")
             net.WriteUInt(chosenSegment, 4)
         net.Broadcast()
@@ -199,6 +199,7 @@ local function ClearEffects()
     -- End all of the effects
     for effectIdx, effect in ipairs(WHEELBOY.Effects) do
         effect.finish()
+        effect.times = 0
 
         -- If this effect is shared, then send a message to the client so it knows to do something too
         if effect.shared then
