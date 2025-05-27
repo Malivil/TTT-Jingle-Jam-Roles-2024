@@ -152,45 +152,6 @@ AddHook("TTTRandomatCanEventRun", "WheelBoy_TTTRandomatCanEventRun", function(ev
     end
 end)
 
----------------
--- ROLE SWAP --
----------------
-
-local function WheelBoyKilledNotification(attacker, victim)
-    JesterTeamKilledNotification(attacker, victim,
-        -- getkillstring
-        function()
-            return attacker:Nick() .. " silenced " .. ROLE_STRINGS[ROLE_WHEELBOY] .. "!"
-        end)
-end
-
-AddHook("PlayerDeath", "WheelBoy_Swap_PlayerDeath", function(victim, infl, attacker)
-    -- This gets set to nil when the spin count exceeds the win condition (aka, the wheelboy has won)
-    if spinCount == nil then return end
-    if not swap_on_kill:GetBool() then return end
-
-    local valid_kill = IsPlayer(attacker) and attacker ~= victim and GetRoundState() == ROUND_ACTIVE
-    if not valid_kill then return end
-    if not victim:IsWheelBoy() then return end
-
-    WheelBoyKilledNotification(attacker, victim)
-
-    -- Keep track o the killer for the scoreboard
-    attacker:SetNWString("WheelBoyKilled", victim:Nick())
-
-    -- Swap roles
-    victim:SetRole(attacker:GetRole())
-    attacker:MoveRoleState(victim)
-    attacker:SetRole(ROLE_WHEELBOY)
-    attacker:StripRoleWeapons()
-    RunHook("PlayerLoadout", attacker)
-    SendFullStateUpdate()
-
-    -- Tell the new wheelboy what happened and what to do now
-    attacker:QueueMessage(MSG_PRINTBOTH, "You killed " .. ROLE_STRINGS[ROLE_WHEELBOY] .. " and have become the new " .. ROLE_STRINGS[ROLE_WHEELBOY])
-    attacker:QueueMessage(MSG_PRINTBOTH, "Spin your wheel " .. spins_to_win:GetInt() .. " time(s) to win")
-end)
-
 -------------
 -- CLEANUP --
 -------------
@@ -246,8 +207,6 @@ end)
 AddHook("TTTPlayerRoleChanged", "WheelBoy_TTTPlayerRoleChanged", function(ply, oldRole, newRole)
     if oldRole == newRole then return end
     -- Clear effects if wheelboy's role is changed
-    -- This has the secondary effect of encouraging people to
-    -- kill wheelboy to stop any current annoying effects
     if oldRole == ROLE_WHEELBOY then
         ClearEffectsAndWheel(ply)
     -- If there's a new wheelboy, reset the spin count so
@@ -261,4 +220,48 @@ AddHook("PlayerDisconnected", "WheelBoy_PlayerDisconnected", function(ply)
     if not IsPlayer(ply) then return end
     if not ply:IsWheelBoy() then return end
     ClearEffectsAndWheel(ply)
+end)
+
+-----------------
+-- DEATH LOGIC --
+-----------------
+
+local function WheelBoyKilledNotification(attacker, victim)
+    JesterTeamKilledNotification(attacker, victim,
+        -- getkillstring
+        function()
+            return attacker:Nick() .. " silenced " .. ROLE_STRINGS[ROLE_WHEELBOY] .. "!"
+        end)
+end
+
+AddHook("PlayerDeath", "WheelBoy_DeathLogic_PlayerDeath", function(victim, infl, attacker)
+    if not victim:IsWheelBoy() then return end
+
+    -- Incentivize killing the Wheel Boy if their effects are annoying
+    ClearEffectsAndWheel(victim)
+
+    local valid_kill = IsPlayer(attacker) and attacker ~= victim and GetRoundState() == ROUND_ACTIVE
+    if not valid_kill then return end
+
+    WheelBoyKilledNotification(attacker, victim)
+
+    -- This gets set to nil when the spin count exceeds the win condition (aka, the wheelboy has won)
+    -- If the Wheel Boy has won, don't swap roles when someone kills them
+    if spinCount == nil then return end
+    if not swap_on_kill:GetBool() then return end
+
+    -- Keep track of the killer for the scoreboard
+    attacker:SetNWString("WheelBoyKilled", victim:Nick())
+
+    -- Swap roles
+    victim:SetRole(attacker:GetRole())
+    attacker:MoveRoleState(victim)
+    attacker:SetRole(ROLE_WHEELBOY)
+    attacker:StripRoleWeapons()
+    RunHook("PlayerLoadout", attacker)
+    SendFullStateUpdate()
+
+    -- Tell the new wheelboy what happened and what to do now
+    attacker:QueueMessage(MSG_PRINTBOTH, "You killed " .. ROLE_STRINGS[ROLE_WHEELBOY] .. " and have become the new " .. ROLE_STRINGS[ROLE_WHEELBOY])
+    attacker:QueueMessage(MSG_PRINTBOTH, "Spin your wheel " .. spins_to_win:GetInt() .. " time(s) to win")
 end)
