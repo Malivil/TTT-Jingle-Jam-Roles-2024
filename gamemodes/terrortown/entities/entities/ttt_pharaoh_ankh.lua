@@ -112,6 +112,7 @@ if SERVER then
         local placer = self:GetPlacer()
         if not IsPlayer(placer) then return end
 
+        if att:ShouldActLikeJester() then return end
         if att == placer and not damage_own_ankh:GetBool() then return end
 
         self:SetHealth(self:Health() - dmginfo:GetDamage())
