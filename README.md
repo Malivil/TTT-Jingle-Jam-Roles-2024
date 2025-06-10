@@ -164,6 +164,7 @@ ttt_pharaoh_update_scoreboard      1    // Whether Pharaohs see dead players as 
 
 ## ![Role Icon](/gamemodes/terrortown/content/materials/vgui/ttt/roles/pnr/tab_pnr.png) Poisoner
 _Suggested By_: /u/HereForTOMT3\
+_Contributed By_: Logan and Malivil\
 The Poisoner is a traitor role that can poison a target, disabling that player's role ability.
 \
 \
