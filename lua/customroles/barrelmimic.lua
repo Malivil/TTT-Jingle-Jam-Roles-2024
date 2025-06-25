@@ -65,7 +65,8 @@ ROLE.translations = {
     ["english"] = {
         ["bam_transformer_help_pri"] = "Use {primaryfire} to transform into an explodable barrel",
         ["bam_transformer_help_sec"] = "Use {secondaryfire} to transform back",
-        ["ev_win_barrelmimic"] = "The {role} has exploded its way to victory!"
+        ["ev_win_barrelmimic"] = "The {role} has exploded its way to victory!",
+        ["score_barrelmimic_exploded"] = "{killer} exploded"
     }
 }
 
@@ -228,7 +229,8 @@ if SERVER then
         if victim == attacker then return end
         if dmginfo:GetDamage() < ent:GetMaxHealth() then return end
 
-        BarrelMimicKilledNotification(dmginfo:GetAttacker(), ent.BarrelMimic, "exploded")
+        ent.BarrelMimic:SetProperty("BarrelMimicKiller", attacker:Nick())
+        BarrelMimicKilledNotification(attacker, ent.BarrelMimic, "exploded")
     end)
 
     AddHook("TTTStopPlayerRespawning", "BarrelMimic_TTTStopPlayerRespawning", function(ply)
@@ -269,6 +271,7 @@ if SERVER then
             net.Broadcast()
 
             inflictor.BarrelMimic:QueueMessage(MSG_PRINTBOTH, "Success! Your barrel has killed a player!")
+            inflictor.BarrelMimic:SetProperty("BarrelMimicVictim", victim:Nick())
         end
 
         inflictor.BarrelMimic:Kill()
@@ -292,6 +295,8 @@ if SERVER then
                 v.BarrelMimicEnt = nil
                 v:SetParent(nil)
             end
+            v:ClearProperty("BarrelMimicVictim")
+            v:ClearProperty("BarrelMimicKiller")
         end
         table.Empty(respawnTimers)
 
@@ -336,6 +341,19 @@ if CLIENT then
     AddHook("TTTScoringSecondaryWins", "BarrelMimic_TTTScoringSecondaryWins", function(wintype, secondary_wins)
         if barrelMimicWins then
             TableInsert(secondary_wins, ROLE_BARRELMIMIC)
+        end
+    end)
+
+    -- Show who exploded the barrel mimic
+    AddHook("TTTScoringSummaryRender", "BarrelMimic_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+        if not IsPlayer(ply) then return end
+
+        if ply:IsBarrelMimic() then
+            local barrelVictim = ply.BarrelMimicVictim
+            local barrelKiller = ply.BarrelMimicKiller
+            if barrelVictim and barrelKiller and #barrelVictim > 0 and #barrelKiller > 0 then
+                return roleFileName, groupingRole, roleColor, name, barrelVictim, LANG.GetParamTranslation("score_barrelmimic_exploded", {killer = barrelKiller})
+            end
         end
     end)
 
