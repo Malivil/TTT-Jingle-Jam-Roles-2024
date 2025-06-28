@@ -54,6 +54,10 @@ ROLE.convars = {
     {
         cvar = "ttt_barrelmimic_respawn_delay",
         type = ROLE_CONVAR_TYPE_NUM
+    },
+    {
+        cvar = "ttt_barrelmimic_respawn_delay_increase",
+        type = ROLE_CONVAR_TYPE_NUM
     }
 }
 
@@ -61,7 +65,8 @@ ROLE.translations = {
     ["english"] = {
         ["bam_transformer_help_pri"] = "Use {primaryfire} to transform into an explodable barrel",
         ["bam_transformer_help_sec"] = "Use {secondaryfire} to transform back",
-        ["ev_win_barrelmimic"] = "The {role} has exploded its way to victory!"
+        ["ev_win_barrelmimic"] = "The {role} has exploded its way to victory!",
+        ["score_barrelmimic_exploded"] = "{killer} exploded"
     }
 }
 
@@ -70,6 +75,7 @@ RegisterRole(ROLE)
 local announce = CreateConVar("ttt_barrelmimic_announce", "1", FCVAR_REPLICATED, "Whether to announce that there is a barrel mimic", 0, 1)
 local respawn_all_deaths = CreateConVar("ttt_barrelmimic_respawn_all_deaths", "1", FCVAR_REPLICATED, "Whether to respawn when the Barrel Mimic is killed in any way. If disabled, they will only respawn when killed as a barrel", 0, 1)
 local respawn_delay = CreateConVar("ttt_barrelmimic_respawn_delay", "15", FCVAR_REPLICATED, "The delay before the Barrel Mimic is killed without winning the round. If set to 0, they will not respawn", 0, 60)
+local respawn_delay_increase = CreateConVar("ttt_barrelmimic_respawn_delay_increase", "1", FCVAR_REPLICATED, "How much to increase the respawn delay per Barrel Mimic death. If set to 0, the delay will not increase", 0, 20)
 
 hook.Add("TTTIsPlayerRespawning", "BarrelMimic_TTTIsPlayerRespawning", function(ply)
     if not IsPlayer(ply) then return end
@@ -155,6 +161,12 @@ if SERVER then
         local delay = respawn_delay:GetInt()
         if delay <= 0 then return end
 
+        -- Track how many times they have respawned
+        ply.BarrelMimicRespawns = (ply.BarrelMimicRespawns or 0) + 1
+
+        -- Increase the respawn delay by the configured amount per respawn
+        delay = delay + ((ply.BarrelMimicRespawns - 1) * respawn_delay_increase:GetInt())
+
         ply:QueueMessage(MSG_PRINTBOTH, "You've died without killing anyone as a barrel. You will respawn in " .. delay .. " seconds.")
         ply:SetProperty("BarrelMimicIsRespawning", true)
 
@@ -217,7 +229,8 @@ if SERVER then
         if victim == attacker then return end
         if dmginfo:GetDamage() < ent:GetMaxHealth() then return end
 
-        BarrelMimicKilledNotification(dmginfo:GetAttacker(), ent.BarrelMimic, "exploded")
+        ent.BarrelMimic:SetProperty("BarrelMimicKiller", attacker:Nick())
+        BarrelMimicKilledNotification(attacker, ent.BarrelMimic, "exploded")
     end)
 
     AddHook("TTTStopPlayerRespawning", "BarrelMimic_TTTStopPlayerRespawning", function(ply)
@@ -258,6 +271,7 @@ if SERVER then
             net.Broadcast()
 
             inflictor.BarrelMimic:QueueMessage(MSG_PRINTBOTH, "Success! Your barrel has killed a player!")
+            inflictor.BarrelMimic:SetProperty("BarrelMimicVictim", victim:Nick())
         end
 
         inflictor.BarrelMimic:Kill()
@@ -275,11 +289,14 @@ if SERVER then
     AddHook("TTTPrepareRound", "BarrelMimic_TTTPrepareRound", function()
         for _, v in PlayerIterator() do
             ClearRespawnTimer(v)
+            v.BarrelMimicRespawns = nil
             -- If this player has a barrel attached to them (and vice versa), detach it
             if v.BarrelMimicEnt then
                 v.BarrelMimicEnt = nil
                 v:SetParent(nil)
             end
+            v:ClearProperty("BarrelMimicVictim")
+            v:ClearProperty("BarrelMimicKiller")
         end
         table.Empty(respawnTimers)
 
@@ -327,6 +344,19 @@ if CLIENT then
         end
     end)
 
+    -- Show who exploded the barrel mimic
+    AddHook("TTTScoringSummaryRender", "BarrelMimic_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+        if not IsPlayer(ply) then return end
+
+        if ply:IsBarrelMimic() then
+            local barrelVictim = ply.BarrelMimicVictim
+            local barrelKiller = ply.BarrelMimicKiller
+            if barrelVictim and barrelKiller and #barrelVictim > 0 and #barrelKiller > 0 then
+                return roleFileName, groupingRole, roleColor, name, barrelVictim, LANG.GetParamTranslation("score_barrelmimic_exploded", {killer = barrelKiller})
+            end
+        end
+    end)
+
     ------------
     -- EVENTS --
     ------------
@@ -365,7 +395,12 @@ if CLIENT then
             else
                 html = html .. "exploded as a barrel"
             end
-            html = html .. " <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>without killing another player first</span>, they respawn after " .. delay .. " seconds!</span>"
+            html = html .. " <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>without killing another player first</span>, they respawn after " .. delay .. " second(s)!</span>"
+
+            local delay_increase = respawn_delay_increase:GetInt()
+            if delay_increase > 0 then
+                html = html .. "<span style='display: block; margin-top: 10px;'>The " .. ROLE_STRINGS[ROLE_BARRELMIMIC] .. "'s respawn delay will <span style='color: rgb(" .. roleColor.r .. ", " .. roleColor.g .. ", " .. roleColor.b .. ")'>increase by " .. delay_increase .. " second(s)</span> each time they die!</span>"
+            end
         end
 
         return html
