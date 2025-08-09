@@ -39,7 +39,8 @@ for i = 1, itemTotal do
         name = "Choose an Event!",
         desc = "Error, no randomat event assigned!\n\nBuying this will attempt to trigger 'Choose an Event!' as a fallback.",
         eventid = "choose",
-        hoodooItem = true
+        hoodooItem = true,
+        norandom = true
     }
 
     table.insert(EquipmentItems[ROLE_HOODOO], hoodooItem)
