@@ -72,7 +72,7 @@ if SERVER then
         net.Broadcast()
     end)
 
-    AddHook("TTTCanRespawnAsRole", "Monk_PlayerDeath", function(ply, role)
+    AddHook("TTTCanRespawnAsRole", "Monk_TTTCanRespawnAsRole", function(ply, role)
         if not IsPlayer(ply) then return end
         if not ply:IsMonk() then return end
         -- Let them change roles if they aren't going to dissolve
