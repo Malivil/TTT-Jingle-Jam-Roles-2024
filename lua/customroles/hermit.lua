@@ -305,6 +305,15 @@ if SERVER then
         net.Broadcast()
     end)
 
+    AddHook("TTTCanRespawnAsRole", "Hermit_PlayerDeath", function(ply, role)
+        if not IsPlayer(ply) then return end
+        if not ply:IsHermit() then return end
+        -- Let them change roles if they aren't going to dissolve
+        if ply:IsRoleAbilityDisabled() then return end
+
+        return false
+    end)
+
     AddHook("TTTDeathNotifyOverride", "Hermit_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
