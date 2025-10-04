@@ -275,6 +275,7 @@ if SERVER then
     AddHook("PlayerDeath", "Hermit_PlayerDeath", function(victim, inflictor, attacker)
         if not IsPlayer(victim) then return end
         if not victim:IsHermit() then return end
+        if victim:IsRoleAbilityDisabled() then return end
 
         local ragdoll = victim.server_ragdoll or victim:GetRagdollEntity()
         if ragdoll then
