@@ -307,7 +307,12 @@ if SERVER then
 
     AddHook("TTTCanRespawnAsRole", "Hermit_TTTCanRespawnAsRole", function(ply, role)
         if not IsPlayer(ply) then return end
-        if not ply:IsHermit() then return end
+        if TRAITOR_ROLES[ROLE_HERMIT] then
+            if not ply:IsSoulbound() then return end
+            if ply:GetNWInt("TTTSoulboundOldRole") ~= ROLE_HERMIT then return end
+        else if not ply:IsHermit() then
+            return end
+        end
         -- Let them change roles if they aren't going to dissolve
         if ply:IsRoleAbilityDisabled() then return end
 

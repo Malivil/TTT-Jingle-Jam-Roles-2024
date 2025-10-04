@@ -81,7 +81,8 @@ if SERVER then
 
     AddHook("TTTCanRespawnAsRole", "Zealot_TTTCanRespawnAsRole", function(ply, role)
         if not IsPlayer(ply) then return end
-        if not ply:IsZealot() then return end
+        if not ply:IsSoulbound() then return end
+        if ply:GetNWInt("TTTSoulboundOldRole") ~= ROLE_ZEALOT then return end
         -- Let them change roles if they aren't going to dissolve
         if ply:IsRoleAbilityDisabled() then return end
 
