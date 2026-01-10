@@ -35,7 +35,7 @@ end
 
 ROLE.translations = {
     ["english"] = {
-        ["ev_zealot_killed"] = "The {zealot} ({ply}) died and became a ghost"
+        ["ev_zealot_died"] = "The {zealot} ({ply}) died and became a ghost"
     }
 }
 
@@ -77,6 +77,16 @@ if SERVER then
         net.Start("TTT_ZealotKilled")
         net.WriteString(victim:Nick())
         net.Broadcast()
+    end)
+
+    AddHook("TTTCanRespawnAsRole", "Zealot_TTTCanRespawnAsRole", function(ply, role)
+        if not IsPlayer(ply) then return end
+        if not ply:IsSoulbound() then return end
+        if ply:GetNWInt("TTTSoulboundOldRole") ~= ROLE_ZEALOT then return end
+        -- Let them change roles if they aren't going to dissolve
+        if ply:IsRoleAbilityDisabled() then return end
+
+        return false
     end)
 
     AddHook("TTTDeathNotifyOverride", "Zealot_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)

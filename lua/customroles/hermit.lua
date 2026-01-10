@@ -275,6 +275,7 @@ if SERVER then
     AddHook("PlayerDeath", "Hermit_PlayerDeath", function(victim, inflictor, attacker)
         if not IsPlayer(victim) then return end
         if not victim:IsHermit() then return end
+        if victim:IsRoleAbilityDisabled() then return end
 
         local ragdoll = victim.server_ragdoll or victim:GetRagdollEntity()
         if ragdoll then
@@ -302,6 +303,20 @@ if SERVER then
         net.Start("TTT_HermitKilled")
         net.WriteString(victim:Nick())
         net.Broadcast()
+    end)
+
+    AddHook("TTTCanRespawnAsRole", "Hermit_TTTCanRespawnAsRole", function(ply, role)
+        if not IsPlayer(ply) then return end
+        if TRAITOR_ROLES[ROLE_HERMIT] then
+            if not ply:IsSoulbound() then return end
+            if ply:GetNWInt("TTTSoulboundOldRole") ~= ROLE_HERMIT then return end
+        else if not ply:IsHermit() then
+            return end
+        end
+        -- Let them change roles if they aren't going to dissolve
+        if ply:IsRoleAbilityDisabled() then return end
+
+        return false
     end)
 
     AddHook("TTTDeathNotifyOverride", "Hermit_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
