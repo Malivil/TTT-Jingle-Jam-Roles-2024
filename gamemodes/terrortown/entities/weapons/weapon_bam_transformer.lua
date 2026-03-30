@@ -144,6 +144,11 @@ function SWEP:SecondaryAttack()
     owner:DrawWorldModel(true)
     owner:SetNoDraw(false)
 
+    -- Spawn is necessary to fully reset state after `UnSpectate`, but it changes their position too
+    local pos = owner:GetPos()
+    owner:Spawn()
+    owner:SetPos(pos)
+
     owner.BarrelMimicEnt = nil
 
     -- Remove the player from the barrel so it doesn't trigger the "no kill respawn" logic
