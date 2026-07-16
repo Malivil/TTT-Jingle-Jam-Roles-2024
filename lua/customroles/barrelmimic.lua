@@ -70,14 +70,12 @@ ROLE.translations = {
     }
 }
 
-RegisterRole(ROLE)
-
 local announce = CreateConVar("ttt_barrelmimic_announce", "1", FCVAR_REPLICATED, "Whether to announce that there is a barrel mimic", 0, 1)
 local respawn_all_deaths = CreateConVar("ttt_barrelmimic_respawn_all_deaths", "1", FCVAR_REPLICATED, "Whether to respawn when the Barrel Mimic is killed in any way. If disabled, they will only respawn when killed as a barrel", 0, 1)
 local respawn_delay = CreateConVar("ttt_barrelmimic_respawn_delay", "15", FCVAR_REPLICATED, "The delay before the Barrel Mimic is killed without winning the round. If set to 0, they will not respawn", 0, 60)
 local respawn_delay_increase = CreateConVar("ttt_barrelmimic_respawn_delay_increase", "1", FCVAR_REPLICATED, "How much to increase the respawn delay per Barrel Mimic death. If set to 0, the delay will not increase", 0, 20)
 
-hook.Add("TTTIsPlayerRespawning", "BarrelMimic_TTTIsPlayerRespawning", function(ply)
+local function BarrelMimic_TTTIsPlayerRespawning(ply)
     if not IsPlayer(ply) then return end
     if ply:Alive() then return end
     if not ply:IsBarrelMimic() then return end
@@ -85,7 +83,7 @@ hook.Add("TTTIsPlayerRespawning", "BarrelMimic_TTTIsPlayerRespawning", function(
     if ply.BarrelMimicIsRespawning then
         return true
     end
-end)
+end
 
 if SERVER then
     AddCSLuaFile()
@@ -103,10 +101,10 @@ if SERVER then
     -----------
 
     -- Attacking the Barrel Mimic does not penalize karma
-    AddHook("TTTKarmaShouldGivePenalty", "BarrelMimic_TTTKarmaShouldGivePenalty", function(attacker, victim)
+    local function BarrelMimic_TTTKarmaShouldGivePenalty(attacker, victim)
         if not IsPlayer(victim) or not victim:IsBarrelMimic() then return end
         return false
-    end)
+    end
 
     ------------------
     -- ANNOUNCEMENT --
@@ -205,7 +203,7 @@ if SERVER then
     local barrelMimicWins = false
     -- Respawn the Barrel Mimic if their barrel explodes but they don't kill anyone
     -- This appears to happen AFTER the PlayerDeath hook so all we need to do is check if they've won
-    AddHook("EntityRemoved", "BarrelMimic_EntityRemoved", function(ent)
+    local function BarrelMimic_EntityRemoved(ent)
         if barrelMimicWins then return end
         if not IsPlayer(ent.BarrelMimic) then return end
 
@@ -216,9 +214,9 @@ if SERVER then
         ply:Kill()
         ply.BarrelMimicEnt = nil
         StartRespawnTimer(ply)
-    end)
+    end
 
-    AddHook("PostEntityTakeDamage", "BarrelMimic_PostEntityTakeDamage", function(ent, dmginfo, wasDamageTaken)
+    local function BarrelMimic_PostEntityTakeDamage(ent, dmginfo, wasDamageTaken)
         if not wasDamageTaken then return end
         local victim = ent.BarrelMimic
         if not IsPlayer(victim) then return end
@@ -231,21 +229,21 @@ if SERVER then
 
         ent.BarrelMimic:SetProperty("BarrelMimicKiller", attacker:Nick())
         BarrelMimicKilledNotification(attacker, ent.BarrelMimic, "exploded")
-    end)
+    end
 
-    AddHook("TTTStopPlayerRespawning", "BarrelMimic_TTTStopPlayerRespawning", function(ply)
+    local function BarrelMimic_TTTStopPlayerRespawning(ply)
         if not IsPlayer(ply) then return end
         if ply:Alive() then return end
         if not ply:IsBarrelMimic() then return end
 
         ClearRespawnTimer(ply)
-    end)
+    end
 
     ----------------
     -- WIN CHECKS --
     ----------------
 
-    AddHook("PlayerDeath", "BarrelMimic_PlayerDeath", function(victim, inflictor, attacker)
+    local function BarrelMimic_PlayerDeath(victim, inflictor, attacker)
         if barrelMimicWins then return end
 
         if IsPlayer(victim) and victim:IsBarrelMimic() then
@@ -276,7 +274,7 @@ if SERVER then
 
         inflictor.BarrelMimic:Kill()
         inflictor.BarrelMimic.BarrelMimicEnt = nil
-    end)
+    end
 
     AddHook("Initialize", "BarrelMimic_Initialize", function()
         WIN_BARRELMIMIC = GenerateNewWinID(ROLE_BARRELMIMIC)
@@ -310,6 +308,19 @@ if SERVER then
         net.Start("TTT_ResetBarrelMimicWins")
         net.Broadcast()
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["EntityRemoved"] = BarrelMimic_EntityRemoved,
+        ["PlayerDeath"] = BarrelMimic_PlayerDeath,
+        ["PostEntityTakeDamage"] = BarrelMimic_PostEntityTakeDamage,
+        ["TTTIsPlayerRespawning"] = BarrelMimic_TTTIsPlayerRespawning,
+        ["TTTKarmaShouldGivePenalty"] = BarrelMimic_TTTKarmaShouldGivePenalty,
+        ["TTTStopPlayerRespawning"] = BarrelMimic_TTTStopPlayerRespawning
+    }
 end
 
 if CLIENT then
@@ -338,14 +349,14 @@ if CLIENT then
     AddHook("TTTPrepareRound", "BarrelMimic_WinTracking_TTTPrepareRound", ResetBarrelMimicWin)
     AddHook("TTTBeginRound", "BarrelMimic_WinTracking_TTTBeginRound", ResetBarrelMimicWin)
 
-    AddHook("TTTScoringSecondaryWins", "BarrelMimic_TTTScoringSecondaryWins", function(wintype, secondary_wins)
+    local function BarrelMimic_TTTScoringSecondaryWins(wintype, secondary_wins)
         if barrelMimicWins then
             TableInsert(secondary_wins, ROLE_BARRELMIMIC)
         end
-    end)
+    end
 
     -- Show who exploded the barrel mimic
-    AddHook("TTTScoringSummaryRender", "BarrelMimic_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+    local function BarrelMimic_TTTScoringSummaryRender(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
         if not IsPlayer(ply) then return end
 
         if ply:IsBarrelMimic() then
@@ -355,23 +366,23 @@ if CLIENT then
                 return roleFileName, groupingRole, roleColor, name, barrelVictim, LANG.GetParamTranslation("score_barrelmimic_exploded", {killer = barrelKiller})
             end
         end
-    end)
+    end
 
     ------------
     -- EVENTS --
     ------------
 
-    AddHook("TTTEventFinishText", "BarrelMimic_TTTEventFinishText", function(e)
+    local function BarrelMimic_TTTEventFinishText(e)
         if e.win == WIN_BARRELMIMIC then
             return LANG.GetParamTranslation("ev_win_barrelmimic", { role = string.lower(ROLE_STRINGS[ROLE_BARRELMIMIC]) })
         end
-    end)
+    end
 
-    AddHook("TTTEventFinishIconText", "BarrelMimic_TTTEventFinishIconText", function(e, win_string, role_string)
+    local function BarrelMimic_TTTEventFinishIconText(e, win_string, role_string)
         if e.win == WIN_BARRELMIMIC then
             return "ev_win_icon_also", ROLE_STRINGS[ROLE_BARRELMIMIC]
         end
-    end)
+    end
 
     --------------
     -- TUTORIAL --
@@ -405,4 +416,17 @@ if CLIENT then
 
         return html
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["TTTEventFinishIconText"] = BarrelMimic_TTTEventFinishIconText,
+        ["TTTEventFinishText"] = BarrelMimic_TTTEventFinishText,
+        ["TTTScoringSecondaryWins"] = BarrelMimic_TTTScoringSecondaryWins,
+        ["TTTScoringSummaryRender"] = BarrelMimic_TTTScoringSummaryRender
+    }
 end
+
+RegisterRole(ROLE)

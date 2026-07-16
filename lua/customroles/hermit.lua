@@ -95,8 +95,6 @@ including the ability to speak with the living.]],
     }
 }
 
-RegisterRole(ROLE)
-
 local hermit_is_independent = CreateConVar("ttt_hermit_is_independent", "0", FCVAR_REPLICATED, "Whether Hermits should be treated as members of the independent team", 0, 1)
 local hermit_reveal_traitor = CreateConVar("ttt_hermit_reveal_traitor", "1", FCVAR_REPLICATED, "Who the Hermit is revealed to when they join the traitor team", 0, 4)
 local hermit_reveal_innocent = CreateConVar("ttt_hermit_reveal_innocent", "2", FCVAR_REPLICATED, "Who the Hermit is revealed to when they join the innocent team", 0, 4)
@@ -143,7 +141,7 @@ if SERVER then
         end
     end
 
-    AddHook("WeaponEquip", "Hermit_WeaponEquip", function(wep, ply)
+    local function Hermit_WeaponEquip(wep, ply)
         if not IsValid(wep) or not wep.CanBuy or wep.AutoSpawnable then return end
         -- We only care about Hermits here
         if not IsPlayer(ply) or not ply:IsHermit() then return end
@@ -214,11 +212,11 @@ if SERVER then
         net.WriteString(team_ext)
         net.WriteString(ply:SteamID64())
         net.Broadcast()
-    end)
+    end
 
-    AddHook("TTTCanTransferWeaponOwnership", "Hermit_TTTCanTransferWeaponOwnership", function(ply, wep)
+    local function Hermit_TTTCanTransferWeaponOwnership(ply, wep)
         if IsPlayer(ply) and ply:IsHermit() then return false end
-    end)
+    end
 
     ------------------
     -- HERMIT DEATH --
@@ -232,7 +230,7 @@ if SERVER then
             end)
     end
 
-    AddHook("DoPlayerDeath", "Hermit_DoPlayerDeath", function(ply, attacker, dmg)
+    local function Hermit_DoPlayerDeath(ply, attacker, dmg)
         if not IsPlayer(attacker) or attacker == ply or GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsPlayer(ply) or not ply:IsHermit() then return end
         if INNOCENT_ROLES[ROLE_HERMIT] or TRAITOR_ROLES[ROLE_HERMIT] then return end
@@ -267,12 +265,12 @@ if SERVER then
             team = ROLE_STRINGS[ROLE_TRAITOR]
         end
         ply:QueueMessage(MSG_PRINTBOTH, "You have joined the " .. team .. " team")
-    end)
+    end
 
     local ghostwhisperer_max_abilities = GetConVar("ttt_ghostwhisperer_max_abilities")
     local soulbound_max_abilities = GetConVar("ttt_soulbound_max_abilities")
 
-    AddHook("PlayerDeath", "Hermit_PlayerDeath", function(victim, inflictor, attacker)
+    local function Hermit_PlayerDeath(victim, inflictor, attacker)
         if not IsPlayer(victim) then return end
         if not victim:IsHermit() then return end
         if victim:IsRoleAbilityDisabled() then return end
@@ -303,9 +301,9 @@ if SERVER then
         net.Start("TTT_HermitKilled")
         net.WriteString(victim:Nick())
         net.Broadcast()
-    end)
+    end
 
-    AddHook("TTTCanRespawnAsRole", "Hermit_TTTCanRespawnAsRole", function(ply, role)
+    local function Hermit_TTTCanRespawnAsRole(ply, role)
         if not IsPlayer(ply) then return end
         if TRAITOR_ROLES[ROLE_HERMIT] then
             if not ply:IsSoulbound() then return end
@@ -317,9 +315,9 @@ if SERVER then
         if ply:IsRoleAbilityDisabled() then return end
 
         return false
-    end)
+    end
 
-    AddHook("TTTDeathNotifyOverride", "Hermit_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
+    local function Hermit_TTTDeathNotifyOverride(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
         if not attacker:IsPlayer() then return end
@@ -327,7 +325,7 @@ if SERVER then
         if not victim:IsHermit() then return end
 
         return reason, killerName, ROLE_NONE
-    end)
+    end
 
     ------------
     -- EVENTS --
@@ -356,6 +354,19 @@ if SERVER then
         net.Start("TTT_HermitResetTeam")
         net.Broadcast()
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["DoPlayerDeath"] = Hermit_DoPlayerDeath,
+        ["PlayerDeath"] = Hermit_PlayerDeath,
+        ["TTTCanRespawnAsRole"] = Hermit_TTTCanRespawnAsRole,
+        ["TTTCanTransferWeaponOwnership"] = Hermit_TTTCanTransferWeaponOwnership,
+        ["TTTDeathNotifyOverride"] = Hermit_TTTDeathNotifyOverride,
+        ["WeaponEquip"] = Hermit_WeaponEquip
+    }
 end
 
 if CLIENT then
@@ -448,25 +459,25 @@ if CLIENT then
     -- ROUND SUMMARY --
     -------------------
 
-    AddHook("TTTScoringSummaryRender", "Hermit_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+    local function Hermit_TTTScoringSummaryRender(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
         -- Make the traitor team Hermit appear as the Hermit instead of Soulbound in the round summary
         if ROLE_SOULBOUND and finalRole == ROLE_SOULBOUND and TRAITOR_ROLES[ROLE_HERMIT] and ply:GetNWInt("TTTSoulboundOldRole", -1) == ROLE_HERMIT then
             return ROLE_STRINGS_SHORT[ROLE_HERMIT]
         end
-    end)
+    end
 
     ----------------
     -- ROLE POPUP --
     ----------------
 
-    AddHook("TTTRolePopupRoleStringOverride", "Hermit_TTTRolePopupRoleStringOverride", function(cli, roleString)
+    local function Hermit_TTTRolePopupRoleStringOverride(cli, roleString)
         if not IsPlayer(cli) or not cli:IsHermit() then return end
 
         if hermit_is_independent:GetBool() then
             return roleString .. "_indep"
         end
         return roleString .. "_jester"
-    end)
+    end
 
 
     --------------
@@ -543,13 +554,22 @@ if CLIENT then
 
         return html
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["TTTRolePopupRoleStringOverride"] = Hermit_TTTRolePopupRoleStringOverride,
+        ["TTTScoringSummaryRender"] = Hermit_TTTScoringSummaryRender
+    }
 end
 
-AddHook("TTTRoleSpawnsArtificially", "Hermit_TTTRoleSpawnsArtificially", function(role)
+local function Hermit_TTTRoleSpawnsArtificially(role)
     if role == ROLE_HERMIT and util.CanRoleSpawn(ROLE_MISSIONARY) then
         return true
     end
-end)
+end
 
 AddHook("TTTUpdateRoleState", "Hermit_TTTUpdateRoleState", function()
     if INNOCENT_ROLES[ROLE_HERMIT] or TRAITOR_ROLES[ROLE_HERMIT] then return end
@@ -558,3 +578,11 @@ AddHook("TTTUpdateRoleState", "Hermit_TTTUpdateRoleState", function()
     INDEPENDENT_ROLES[ROLE_HERMIT] = is_independent
     JESTER_ROLES[ROLE_HERMIT] = not is_independent
 end)
+
+------------------
+-- REGISTRATION --
+------------------
+
+ROLE.registeredhooks["TTTRoleSpawnsArtificially"] = Hermit_TTTRoleSpawnsArtificially
+
+RegisterRole(ROLE)

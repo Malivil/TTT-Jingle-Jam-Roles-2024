@@ -63,8 +63,6 @@ if ROLE.selectionpredicate() then
     }
 end
 
-RegisterRole(ROLE)
-
 local hoodoo_prevent_auto_randomat = CreateConVar("ttt_hoodoo_prevent_auto_randomat", 1, FCVAR_REPLICATED, "Prevent auto-randomat triggering if there is a hoodoo at the start of the round", 0, 1)
 
 if SERVER then
@@ -73,9 +71,9 @@ if SERVER then
     local hoodoo_choose_event_on_drop_count = CreateConVar("ttt_hoodoo_choose_event_on_drop_count", 5, FCVAR_NONE, "The number of events a player should be able to choose from when using a dropped randomat", 1, 10)
 
     -- Prevents auto-randomat triggering if there is a Hoodoo alive
-    AddHook("TTTRandomatShouldAuto", "StopAutoRandomatWithHoodoo", function()
+    local function StopAutoRandomatWithHoodoo()
         if hoodoo_prevent_auto_randomat:GetBool() and player.IsRoleLiving(ROLE_HOODOO) then return false end
-    end)
+    end
 
     local blockedEvents = {
         ["blackmarket"] = "removes the main feature of the role",
@@ -84,16 +82,16 @@ if SERVER then
     }
 
     -- Prevents a randomat from ever triggering if there is a hoodoo in the round
-    AddHook("TTTRandomatCanEventRun", "Hoodoo_TTTRandomatCanEventRun", function(event)
+    local function Hoodoo_TTTRandomatCanEventRun(event)
         if not blockedEvents[event.Id] then return end
 
         for _, ply in PlayerIterator() do
             if ply:IsHoodoo() then return false, "There is " .. ROLE_STRINGS_EXT[ROLE_HOODOO] .. " in the round and this event " .. blockedEvents[event.Id] end
         end
-    end)
+    end
 
     local boughtAsHoodoo = {}
-    AddHook("TTTOrderedEquipment", "Hoodoo_TTTOrderedEquipment", function(ply, id, is_item, from_randomat)
+    local function Hoodoo_TTTOrderedEquipment(ply, id, is_item, from_randomat)
         if not ply:IsHoodoo() then return end
 
         -- Let the hoodoo be able to drop the randomat
@@ -121,14 +119,14 @@ if SERVER then
         if not from_randomat then
             boughtAsHoodoo[ply] = true
         end
-    end)
+    end
 
     AddHook("TTTPrepareRound", "Hoodoo_TTTPrepareRound", function()
         table.Empty(boughtAsHoodoo)
     end)
 
     -- Triggering a random event if the hoodoo dies and hasn't bought anything, and the convar is enabled
-    AddHook("PostPlayerDeath", "Hoodoo_PostPlayerDeath", function(ply)
+    local function Hoodoo_PostPlayerDeath(ply)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not hoodoo_event_on_unbought_death:GetBool() then return end
         if not ply:IsHoodoo() then return end
@@ -137,7 +135,18 @@ if SERVER then
         Randomat:TriggerRandomEvent(ply)
         -- Just in case the hoodoo somehow respawns, only trigger a randomat on death once
         boughtAsHoodoo[ply] = true
-    end)
+    end
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["PostPlayerDeath"] = Hoodoo_PostPlayerDeath,
+        ["TTTOrderedEquipment"] = Hoodoo_TTTOrderedEquipment,
+        ["TTTRandomatCanEventRun"] = Hoodoo_TTTRandomatCanEventRun,
+        ["TTTRandomatShouldAuto"] = StopAutoRandomatWithHoodoo
+    }
 end
 
 if CLIENT then
@@ -162,3 +171,5 @@ if CLIENT then
         return html
     end)
 end
+
+RegisterRole(ROLE)

@@ -62,8 +62,6 @@ ROLE.translations = {
     }
 }
 
-RegisterRole(ROLE)
-
 local missionary_announce_proselytize = CreateConVar("ttt_missionary_announce_proselytize", "1", FCVAR_REPLICATED, "How a player being proselytized will be announced to everyone", 0, 2)
 
 MISSIONARY_ANNOUNCE_NONE = 0
@@ -171,3 +169,5 @@ if CLIENT then
         return html
     end)
 end
+
+RegisterRole(ROLE)

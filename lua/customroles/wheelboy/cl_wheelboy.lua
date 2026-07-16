@@ -73,7 +73,7 @@ concommand.Add("ttt_wheelboy_wheel_offset_reset", function()
     wheel_offset_y:SetInt(wheel_offset_y:GetDefault())
 end)
 
-AddHook("TTTSettingsRolesTabSections", "WheelBoy_TTTSettingsRolesTabSections", function(role, parentForm)
+local function WheelBoy_TTTSettingsRolesTabSections(role, parentForm)
     if role ~= ROLE_WHEELBOY then return end
 
     -- Let the user move the wheel within the bounds of the window
@@ -83,23 +83,23 @@ AddHook("TTTSettingsRolesTabSections", "WheelBoy_TTTSettingsRolesTabSections", f
     parentForm:Button(LANG.GetTranslation("wheelboy_config_wheel_offset_reset"), "ttt_wheelboy_wheel_offset_reset")
     parentForm:CheckBox(LANG.GetTranslation("wheelboy_old_wheel_design"), "ttt_wheelboy_old_wheel_design")
     return true
-end)
+end
 
 ----------------
 -- ROLE POPUP --
 ----------------
 
-AddHook("TTTRolePopupParams", "WheelBoy_TTTRolePopupParams", function(cli)
+local function WheelBoy_TTTRolePopupParams(cli)
     if cli:IsWheelBoy() then
         return { times = spins_to_win:GetInt() }
     end
-end)
+end
 
 ---------
 -- HUD --
 ---------
 
-AddHook("TTTHUDInfoPaint", "WheelBoy_TTTHUDInfoPaint", function(cli, label_left, label_top, active_labels)
+local function WheelBoy_TTTHUDInfoPaint(cli, label_left, label_top, active_labels)
     if hide_role:GetBool() then return end
     if not cli:IsActiveWheelBoy() then return end
 
@@ -126,7 +126,7 @@ AddHook("TTTHUDInfoPaint", "WheelBoy_TTTHUDInfoPaint", function(cli, label_left,
 
     -- Track that the label was added so others can position accurately
     TableInsert(active_labels, "wheelboy")
-end)
+end
 
 ----------------
 -- WIN CHECKS --
@@ -166,7 +166,7 @@ net.Receive("TTT_ResetWheelBoyWins", ResetWheelBoyWin)
 AddHook("TTTPrepareRound", "WheelBoy_WinTracking_TTTPrepareRound", ResetWheelBoyWin)
 AddHook("TTTBeginRound", "WheelBoy_WinTracking_TTTBeginRound", ResetWheelBoyWin)
 
-AddHook("TTTScoringSecondaryWins", "WheelBoy_TTTScoringSecondaryWins", function(wintype, secondary_wins)
+local function WheelBoy_TTTScoringSecondaryWins(wintype, secondary_wins)
     if wheelboyWins then
         TableInsert(secondary_wins, {
             rol = ROLE_WHEELBOY,
@@ -174,30 +174,30 @@ AddHook("TTTScoringSecondaryWins", "WheelBoy_TTTScoringSecondaryWins", function(
             col = ROLE_COLORS[ROLE_WHEELBOY]
         })
     end
-end)
+end
 
 ------------
 -- EVENTS --
 ------------
 
-AddHook("TTTEventFinishText", "WheelBoy_TTTEventFinishText", function(e)
+local function WheelBoy_TTTEventFinishText(e)
     if e.win == WIN_WHEELBOY then
         return LANG.GetParamTranslation("ev_win_wheelboy", { role = string.lower(ROLE_STRINGS[ROLE_WHEELBOY]) })
     end
-end)
+end
 
-AddHook("TTTEventFinishIconText", "WheelBoy_TTTEventFinishIconText", function(e, win_string, role_string)
+local function WheelBoy_TTTEventFinishIconText(e, win_string, role_string)
     if e.win == WIN_WHEELBOY then
         return "ev_win_icon_also", ROLE_STRINGS[ROLE_WHEELBOY]
     end
-end)
+end
 
 -------------
 -- SCORING --
 -------------
 
 -- Show who the current wheelboy killed (if anyone)
-AddHook("TTTScoringSummaryRender", "WheelBoy_TTTScoringSummaryRender", function(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
+local function WheelBoy_TTTScoringSummaryRender(ply, roleFileName, groupingRole, roleColor, name, startingRole, finalRole)
     if not IsPlayer(ply) then return end
 
     if ply:IsWheelBoy() then
@@ -206,7 +206,7 @@ AddHook("TTTScoringSummaryRender", "WheelBoy_TTTScoringSummaryRender", function(
             return roleFileName, groupingRole, roleColor, name, wheelboyKilled, LANG.GetTranslation("score_wheelboy_killed")
         end
     end
-end)
+end
 
 ------------------
 -- ANNOUNCEMENT --
@@ -490,7 +490,7 @@ local function ReduceAngle(ang)
     return ang
 end
 
-AddHook("HUDPaint", "WheelBoy_Wheel_HUDPaint", function()
+local function WheelBoy_Wheel_HUDPaint()
     if not wheelStartTime then return end
 
     if not IsPlayer(client) then
@@ -603,7 +603,7 @@ AddHook("HUDPaint", "WheelBoy_Wheel_HUDPaint", function()
             net.SendToServer()
         end
     end
-end)
+end
 
 --------------
 -- TUTORIAL --
@@ -642,3 +642,18 @@ AddHook("TTTTutorialRoleText", "WheelBoy_TTTTutorialRoleText", function(role, ti
 
     return html
 end)
+
+------------------
+-- REGISTRATION --
+------------------
+
+ROLE_REGISTERED_HOOKS[ROLE_WHEELBOY] = {
+    ["HUDPaint"] = WheelBoy_Wheel_HUDPaint,
+    ["TTTEventFinishIconText"] = WheelBoy_TTTEventFinishIconText,
+    ["TTTEventFinishText"] = WheelBoy_TTTEventFinishText,
+    ["TTTHUDInfoPaint"] = WheelBoy_TTTHUDInfoPaint,
+    ["TTTRolePopupParams"] = WheelBoy_TTTRolePopupParams,
+    ["TTTScoringSecondaryWins"] = WheelBoy_TTTScoringSecondaryWins,
+    ["TTTScoringSummaryRender"] = WheelBoy_TTTScoringSummaryRender,
+    ["TTTSettingsRolesTabSections"] = WheelBoy_TTTSettingsRolesTabSections
+}

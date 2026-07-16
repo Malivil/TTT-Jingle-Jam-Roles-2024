@@ -81,8 +81,6 @@ Use your Poison Gun to disable a player's role ability to help your team win!]]
     }
 }
 
-RegisterRole(ROLE)
-
 local poisoner_is_independent = CreateConVar("ttt_poisoner_is_independent", 0, FCVAR_REPLICATED, "Whether Poisoners should be treated as independent", 0, 1)
 local poisoner_target_jesters = CreateConVar("ttt_poisoner_target_jesters", "0", FCVAR_REPLICATED, "Whether the Poisoner can target jesters", 0, 1)
 local poisoner_target_independents = CreateConVar("ttt_poisoner_target_independents", "1", FCVAR_REPLICATED, "Whether the Poisoner can target independents", 0, 1)
@@ -134,11 +132,11 @@ end)
 -- CURE --
 ----------
 
-AddHook("TTTCanCureableRoleSpawn", "Poisoner_TTTCanCureableRoleSpawn", function()
+local function Poisoner_TTTCanCureableRoleSpawn()
     if util.CanRoleSpawn(ROLE_POISONER) then
         return true
     end
-end)
+end
 
 --------------------
 -- PLAYER METHODS --
@@ -234,8 +232,6 @@ if SERVER then
         ply:QueueMessage(MSG_PRINTBOTH, "You're feeling too weak to do that...")
         ply.TTTPoisonerNotified = true
     end
-    AddHook("TTTOnRoleAbilityBlocked", "Poisoner_Notify_TTTOnRoleAbilityBlocked", OnBlocked)
-    AddHook("TTTOnShopPurchaseBlocked", "Poisoner_Notify_TTTOnShopPurchaseBlocked", OnBlocked)
 
     local function OnPoisoned(ply)
         if not poisoner_notify_start:GetBool() then return end
@@ -243,8 +239,6 @@ if SERVER then
         if not ply:IsPoisonerPoisoned() then return end
         ply:QueueMessage(MSG_PRINTBOTH, "You're feeling a little weak...")
     end
-    AddHook("TTTOnRoleAbilityDisabled", "Poisoner_Notify_TTTOnRoleAbilityDisabled", OnPoisoned)
-    AddHook("TTTOnShopPurchaseDisabled", "Poisoner_Notify_TTTOnShopPurchaseDisabled", OnPoisoned)
 
     local function OnUnpoisoned(ply)
         if not poisoner_notify_end:GetBool() then return end
@@ -252,8 +246,6 @@ if SERVER then
         if not ply:IsPoisonerPoisoned() then return end
         ply:QueueMessage(MSG_PRINTBOTH, "You're feeling better =)")
     end
-    AddHook("TTTOnRoleAbilityEnabled", "Poisoner_Notify_TTTOnRoleAbilityEnabled", OnUnpoisoned)
-    AddHook("TTTOnShopPurchaseEnabled", "Poisoner_Notify_TTTOnShopPurchaseEnabled", OnUnpoisoned)
 
     ---------------------
     -- GENERIC EFFECTS --
@@ -290,21 +282,21 @@ if SERVER then
     end
 
     -- Reduce the weapon rate of fire for each weapon the poisoned player picks up
-    AddHook("WeaponEquip", "Poisoner_GenericEffect_WeaponEquip", function(wep, ply)
+    local function Poisoner_GenericEffect_WeaponEquip(wep, ply)
         if not IsValid(wep) or not IsPlayer(ply) then return end
         if not ply:IsInnocentTeam() and not ply:IsIndependentTeam() and not ply:IsMonsterTeam() then return end
         if not ply:IsPoisonerPoisoned() then return end
         ReduceWeaponFireRate(wep)
-    end)
+    end
 
     -- If we previously changed the fire rate of this weapon, undo it on drop
-    AddHook("PlayerDroppedWeapon", "Poisoner_GenericEffect_PlayerDroppedWeapon", function(ply, wep)
+    local function Poisoner_GenericEffect_PlayerDroppedWeapon(ply, wep)
         if not IsValid(wep) or not IsPlayer(ply) then return end
         if not ply:IsPoisonerPoisoned() then return end
         RestoreWeaponFireRate(wep)
-    end)
+    end
 
-    AddHook("TTTOnRoleAbilityDisabled", "Poisoner_GenericEffect_TTTOnRoleAbilityDisabled", function(ply)
+    local function Poisoner_GenericEffect_TTTOnRoleAbilityDisabled(ply)
         if not IsPlayer(ply) then return end
         if not ply:IsInnocentTeam() and not ply:IsIndependentTeam() and not ply:IsMonsterTeam() then return end
 
@@ -313,9 +305,9 @@ if SERVER then
         for _, wep in ipairs(weps) do
             ReduceWeaponFireRate(wep)
         end
-    end)
+    end
 
-    AddHook("TTTOnRoleAbilityEnabled", "Poisoner_GenericEffect_TTTOnRoleAbilityEnabled", function(ply)
+    local function Poisoner_GenericEffect_TTTOnRoleAbilityEnabled(ply)
         if not IsPlayer(ply) then return end
         if not ply:IsInnocentTeam() and not ply:IsIndependentTeam() and not ply:IsMonsterTeam() then return end
 
@@ -324,23 +316,23 @@ if SERVER then
         for _, wep in ipairs(weps) do
             RestoreWeaponFireRate(wep)
         end
-    end)
+    end
 
     -- Reduce damage to 80%
-    AddHook("ScalePlayerDamage", "Poisoner_GenericEffect_ScalePlayerDamage", function(ply, hitgroup, dmginfo)
+    local function Poisoner_GenericEffect_ScalePlayerDamage(ply, hitgroup, dmginfo)
         local attacker = dmginfo:GetAttacker()
         if not IsPlayer(attacker) then return end
         if not attacker:IsInnocentTeam() and not attacker:IsIndependentTeam() and not attacker:IsMonsterTeam() then return end
         if not attacker:IsPoisonerPoisoned() then return end
 
         dmginfo:ScaleDamage(0.8)
-    end)
+    end
 
     -----------------
     -- REFUND AMMO --
     -----------------
 
-    AddHook("PostPlayerDeath", "Poisoner_Refund_PostPlayerDeath", function(ply)
+    local function Poisoner_Refund_PostPlayerDeath(ply)
         if not poisoner_refund_on_death:GetBool() then return end
         if not ply.TTTPoisonerPoisoned then return end
 
@@ -357,9 +349,9 @@ if SERVER then
         else
             RefundPoisonAmmo(poisoner)
         end
-    end)
+    end
 
-    AddHook("PlayerDisconnected", "Poisoner_Refund_PlayerDisconnected", function(ply)
+    local function Poisoner_Refund_PlayerDisconnected(ply)
         if not ply.TTTPoisonerPoisoned then return end
 
         local poisonerSid64 = ply.TTTPoisonerPoisonedBy
@@ -367,13 +359,13 @@ if SERVER then
         if not IsPlayer(poisoner) then return end
 
         RefundPoisonAmmo(poisoner)
-    end)
+    end
 
     ----------
     -- CURE --
     ----------
 
-    AddHook("PostPlayerDeath", "Poisoner_Cure_PostPlayerDeath", function(ply)
+    local function Poisoner_Cure_PostPlayerDeath(ply)
         if not ply:IsPoisoner() then return end
         if not poisoner_cure_on_death:GetBool() then return end
 
@@ -382,9 +374,9 @@ if SERVER then
         if not IsPlayer(target) then return end
 
         target:RemovePoisonerPoison()
-    end)
+    end
 
-    AddHook("TTTPlayerAliveThink", "Poisoner_TTTPlayerAliveThink", function(ply)
+    local function Poisoner_TTTPlayerAliveThink(ply)
         if not IsValid(ply) or ply:IsSpec() or GetRoundState() ~= ROUND_ACTIVE then return end
         local duration = poisoner_poison_duration:GetInt()
         if duration <= 0 then return end
@@ -405,24 +397,24 @@ if SERVER then
                 p:RemovePoisonerPoison()
             end
         end
-    end)
+    end
 
-    AddHook("TTTCanPlayerBeCured", "Poisoner_TTTCanPlayerBeCured", function(ply)
+    local function Poisoner_TTTCanPlayerBeCured(ply)
         if ply:IsPoisonerPoisoned() then
             return true
         end
-    end)
+    end
 
-    AddHook("TTTCurePlayer", "Poisoner_TTTCurePlayer", function(ply)
+    local function Poisoner_TTTCurePlayer(ply)
         if not ply:IsPoisonerPoisoned() then return end
         ply:RemovePoisonerPoison()
-    end)
+    end
 
     ----------------
     -- WIN CHECKS --
     ----------------
 
-    AddHook("TTTCheckForWin", "Poisoner_CheckForWin", function()
+    local function Poisoner_CheckForWin()
         if not INDEPENDENT_ROLES[ROLE_POISONER] then return end
 
         local poisoner_alive = false
@@ -442,15 +434,15 @@ if SERVER then
         elseif poisoner_alive then
             return WIN_NONE
         end
-    end)
+    end
 
-    AddHook("TTTPrintResultMessage", "Poisoner_PrintResultMessage", function(type)
+    local function Poisoner_PrintResultMessage(type)
         if type == WIN_POISONER then
             LANG.Msg("win_poisoner", { role = ROLE_STRINGS[ROLE_POISONER] })
             ServerLog("Result: " .. ROLE_STRINGS[ROLE_POISONER] .. " wins.\n")
             return true
         end
-    end)
+    end
 
     -------------
     -- CLEANUP --
@@ -476,6 +468,39 @@ if SERVER then
             ResetState(v)
         end
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["PlayerDisconnected"] = Poisoner_Refund_PlayerDisconnected,
+        ["PlayerDroppedWeapon"] = Poisoner_GenericEffect_PlayerDroppedWeapon,
+        ["PostPlayerDeath"] = {
+            ["Poisoner_Cure_PostPlayerDeath"] = Poisoner_Cure_PostPlayerDeath,
+            ["Poisoner_Refund_PostPlayerDeath"] = Poisoner_Refund_PostPlayerDeath
+        },
+        ["ScalePlayerDamage"] = Poisoner_GenericEffect_ScalePlayerDamage,
+        ["TTTCanCureableRoleSpawn"] = Poisoner_TTTCanCureableRoleSpawn,
+        ["TTTCanPlayerBeCured"] = Poisoner_TTTCanPlayerBeCured,
+        ["TTTCheckForWin"] = Poisoner_CheckForWin,
+        ["TTTCurePlayer"] = Poisoner_TTTCurePlayer,
+        ["TTTOnRoleAbilityBlocked"] = OnBlocked,
+        ["TTTOnRoleAbilityDisabled"] = {
+            ["Poisoner_GenericEffect_TTTOnRoleAbilityDisabled"] = Poisoner_GenericEffect_TTTOnRoleAbilityDisabled,
+            ["Poisoner_Notify_TTTOnRoleAbilityDisabled"] = OnPoisoned
+        },
+        ["TTTOnRoleAbilityEnabled"] = {
+            ["Poisoner_GenericEffect_TTTOnRoleAbilityEnabled"] = Poisoner_GenericEffect_TTTOnRoleAbilityEnabled,
+            ["Poisoner_Notify_TTTOnRoleAbilityEnabled"] = OnUnpoisoned
+        },
+        ["TTTOnShopPurchaseBlocked"] = OnBlocked,
+        ["TTTOnShopPurchaseDisabled"] = OnPoisoned,
+        ["TTTOnShopPurchaseEnabled"] = OnUnpoisoned,
+        ["TTTPlayerAliveThink"] = Poisoner_TTTPlayerAliveThink,
+        ["TTTPrintResultMessage"] = Poisoner_PrintResultMessage,
+        ["WeaponEquip"] = Poisoner_GenericEffect_WeaponEquip
+    }
 end
 
 if CLIENT then
@@ -484,7 +509,7 @@ if CLIENT then
     ---------------
 
     -- Show "POISONED" label on players who have been infected
-    AddHook("TTTTargetIDPlayerText", "Poisoner_TTTTargetIDPlayerText", function(ent, cli, text, col, secondaryText)
+    local function Poisoner_TTTTargetIDPlayerText(ent, cli, text, col, secondaryText)
         if GetRoundState() < ROUND_ACTIVE then return end
         if not IsPlayer(ent) then return end
         if not cli:IsPoisoner() then return end
@@ -496,7 +521,7 @@ if CLIENT then
             return T("poisoner_poisoned"), ROLE_COLORS[ROLE_TRAITOR]
         end
         return text, col, T("poisoner_poisoned"), ROLE_COLORS[ROLE_TRAITOR]
-    end)
+    end
 
     -- NOTE: ROLE_IS_TARGETID_OVERRIDDEN is not required since only secondary text is being changed and that is not tracked there
 
@@ -504,7 +529,7 @@ if CLIENT then
     -- BODY SEARCHING --
     --------------------
 
-    AddHook("TTTBodySearchPopulate", "Poisoner_TTTBodySearchPopulate", function(search, raw)
+    local function Poisoner_TTTBodySearchPopulate(search, raw)
         local rag = Entity(raw.eidx)
         if not IsValid(rag) then return end
 
@@ -523,7 +548,7 @@ if CLIENT then
             text_icon = time,
             p = 10
         }
-    end)
+    end
 
     -------------
     -- SCORING --
@@ -574,29 +599,29 @@ if CLIENT then
         end
     end)
 
-    AddHook("TTTEventFinishIconText", "Poisoner_EventFinishIconText", function(e, win_string, role_string)
+    local function Poisoner_EventFinishIconText(e, win_string, role_string)
         if e.win == WIN_POISONER then
             return win_string, ROLE_STRINGS[ROLE_POISONER]
         end
-    end)
+    end
 
-    AddHook("TTTScoringWinTitle", "Poisoner_ScoringWinTitle", function(wintype, wintitles, title, secondaryWinRole)
+    local function Poisoner_ScoringWinTitle(wintype, wintitles, title, secondaryWinRole)
         if wintype == WIN_POISONER then
             return { txt = "hilite_win_role_singular", params = { role = string.upper(ROLE_STRINGS[ROLE_POISONER]) }, c = ROLE_COLORS[ROLE_POISONER] }
         end
-    end)
+    end
 
     ----------------
     -- ROLE POPUP --
     ----------------
 
-    hook.Add("TTTRolePopupRoleStringOverride", "Poisoner_TTTRolePopupRoleStringOverride", function(cli, roleString)
+    local function Poisoner_TTTRolePopupRoleStringOverride(cli, roleString)
         if not IsPlayer(cli) or not cli:IsPoisoner() then return end
 
         if INDEPENDENT_ROLES[ROLE_POISONER] then
             return roleString .. "_indep"
         end
-    end)
+    end
 
     --------------
     -- TUTORIAL --
@@ -645,4 +670,18 @@ if CLIENT then
 
         return html
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["TTTBodySearchPopulate"] = Poisoner_TTTBodySearchPopulate,
+        ["TTTEventFinishIconText"] = Poisoner_EventFinishIconText,
+        ["TTTRolePopupRoleStringOverride"] = Poisoner_TTTRolePopupRoleStringOverride,
+        ["TTTScoringWinTitle"] = Poisoner_ScoringWinTitle,
+        ["TTTTargetIDPlayerText"] = Poisoner_TTTTargetIDPlayerText
+    }
 end
+
+RegisterRole(ROLE)
