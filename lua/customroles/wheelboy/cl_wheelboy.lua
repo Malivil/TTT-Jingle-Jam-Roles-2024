@@ -221,7 +221,7 @@ end)
 -----------
 
 surface.CreateFont("WheelBoyLabels", {
-    font = "Tahoma",
+    font = GAMEMODE_DEFAULT_UI_FONT or "Tahoma",
     size = 16,
     weight = 1000
 })
