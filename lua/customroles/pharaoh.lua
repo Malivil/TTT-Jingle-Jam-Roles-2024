@@ -154,8 +154,6 @@ Press {menukey} to receive your equipment!]]
     }
 }
 
-RegisterRole(ROLE)
-
 PHARAOH_AURA_COLOR_MODE_DISABLE = 0
 PHARAOH_AURA_COLOR_MODE_WHITE = 1
 PHARAOH_AURA_COLOR_MODE_ROLE = 2
@@ -197,14 +195,14 @@ end)
 -- RESPAWNING --
 ----------------
 
-AddHook("TTTIsPlayerRespawning", "Pharaoh_TTTIsPlayerRespawning", function(ply)
+local function Pharaoh_TTTIsPlayerRespawning(ply)
     if not IsPlayer(ply) then return end
     if ply:Alive() then return end
 
     if timer.Exists("TTTPharaohAnkhRespawn_" .. ply:SteamID64()) then
         return true
     end
-end)
+end
 
 if SERVER then
     AddCSLuaFile()
@@ -231,12 +229,12 @@ if SERVER then
     ----------------
 
     -- Something else respawned this player, stop the timer and don't use the ankh
-    AddHook("TTTPlayerSpawnForRound", "Pharaoh_TTTPlayerSpawnForRound", function(ply, dead_only)
+    local function Pharaoh_TTTPlayerSpawnForRound(ply, dead_only)
         if dead_only and ply:Alive() and not ply:IsSpec() then return end
         timer.Remove("TTTPharaohAnkhRespawn_" .. ply:SteamID64())
-    end)
+    end
 
-    AddHook("PostPlayerDeath", "Pharaoh_PostPlayerDeath", function(ply)
+    local function Pharaoh_PostPlayerDeath(ply)
         if not IsPlayer(ply) then return end
 
         -- If a player died the can't be stealing the ankh anymore, so clear that state
@@ -290,33 +288,33 @@ if SERVER then
             ply.PharaohAnkh:DestroyAnkh()
             ResetState(ply)
         end
-    end)
+    end
 
-    hook.Add("TTTStopPlayerRespawning", "Pharaoh_TTTStopPlayerRespawning", function(ply)
+    local function Pharaoh_TTTStopPlayerRespawning(ply)
         if not IsPlayer(ply) then return end
         if ply:Alive() then return end
 
         if timer.Exists("TTTPharaohAnkhRespawn_" .. ply:SteamID64()) then
             timer.Remove("TTTPharaohAnkhRespawn_" .. ply:SteamID64())
         end
-    end)
+    end
 
     ----------------
     -- DISCONNECT --
     ----------------
 
     -- On disconnect, destroy ankh if they have one
-    AddHook("PlayerDisconnected", "Pharaoh_PlayerDisconnected", function(ply)
+    local function Pharaoh_PlayerDisconnected(ply)
         if not IsPlayer(ply) then return end
         SafeRemoveEntity(ply.PharaohStealTarget)
         ResetState(ply)
-    end)
+    end
 
     --------------------
     -- STEAL TRACKING --
     --------------------
 
-    AddHook("TTTPlayerAliveThink", "Pharaoh_TTTPlayerAliveThink", function(ply)
+    local function Pharaoh_TTTPlayerAliveThink(ply)
         if ply.PharaohLastStealTime == nil then return end
 
         local stealTarget = ply.PharaohStealTarget
@@ -346,13 +344,13 @@ if SERVER then
         ply:Give("weapon_phr_ankh")
         stealTarget:SetPlacer(nil)
         stealTarget:Remove()
-    end)
+    end
 
     ----------------
     -- WIN CHECKS --
     ----------------
 
-    AddHook("TTTWinCheckBlocks", "Pharaoh_TTTWinCheckBlocks", function(win_blocks)
+    local function Pharaoh_TTTWinCheckBlocks(win_blocks)
         if not pharaoh_respawn_block_win:GetBool() then return end
 
         table.insert(win_blocks, function(win)
@@ -368,13 +366,13 @@ if SERVER then
                 end
             end
         end)
-    end)
+    end
 
     AddHook("Initialize", "Pharaoh_Initialize", function()
         WIN_PHARAOH = GenerateNewWinID(ROLE_PHARAOH)
     end)
 
-    AddHook("TTTCheckForWin", "Pharaoh_CheckForWin", function()
+    local function Pharaoh_CheckForWin()
         if not INDEPENDENT_ROLES[ROLE_PHARAOH] then return end
 
         local pharaoh_alive = false
@@ -394,15 +392,15 @@ if SERVER then
         elseif pharaoh_alive then
             return WIN_NONE
         end
-    end)
+    end
 
-    AddHook("TTTPrintResultMessage", "Pharaoh_PrintResultMessage", function(type)
+    local function Pharaoh_PrintResultMessage(type)
         if type == WIN_PHARAOH then
             LANG.Msg("win_pharaoh", { role = ROLE_STRINGS[ROLE_PHARAOH] })
             ServerLog("Result: " .. ROLE_STRINGS[ROLE_PHARAOH] .. " wins.\n")
             return true
         end
-    end)
+    end
 
     -------------
     -- CLEANUP --
@@ -419,6 +417,22 @@ if SERVER then
             ResetState(v)
         end
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["PlayerDisconnected"] = Pharaoh_PlayerDisconnected,
+        ["PostPlayerDeath"] = Pharaoh_PostPlayerDeath,
+        ["TTTCheckForWin"] = Pharaoh_CheckForWin,
+        ["TTTIsPlayerRespawning"] = Pharaoh_TTTIsPlayerRespawning,
+        ["TTTPlayerAliveThink"] = Pharaoh_TTTPlayerAliveThink,
+        ["TTTPlayerSpawnForRound"] = Pharaoh_TTTPlayerSpawnForRound,
+        ["TTTPrintResultMessage"] = Pharaoh_PrintResultMessage,
+        ["TTTStopPlayerRespawning"] = Pharaoh_TTTStopPlayerRespawning,
+        ["TTTWinCheckBlocks"] = Pharaoh_TTTWinCheckBlocks
+    }
 end
 
 if CLIENT then
@@ -431,30 +445,30 @@ if CLIENT then
         WIN_PHARAOH = WINS_BY_ROLE[ROLE_PHARAOH]
     end)
 
-    AddHook("TTTEventFinishText", "Pharaoh_EventFinishText", function(e)
+    local function Pharaoh_EventFinishText(e)
         if e.win == WIN_PHARAOH then
             return LANG.GetParamTranslation("ev_win_pharaoh", { role = string.lower(ROLE_STRINGS[ROLE_PHARAOH]) })
         end
-    end)
+    end
 
-    AddHook("TTTEventFinishIconText", "Pharaoh_EventFinishIconText", function(e, win_string, role_string)
+    local function Pharaoh_EventFinishIconText(e, win_string, role_string)
         if e.win == WIN_PHARAOH then
             return win_string, ROLE_STRINGS[ROLE_PHARAOH]
         end
-    end)
+    end
 
-    AddHook("TTTScoringWinTitle", "Pharaoh_ScoringWinTitle", function(wintype, wintitles, title, secondaryWinRole)
+    local function Pharaoh_ScoringWinTitle(wintype, wintitles, title, secondaryWinRole)
         if wintype == WIN_PHARAOH then
             return { txt = "hilite_win_role_singular", params = { role = string.upper(ROLE_STRINGS[ROLE_PHARAOH]) }, c = ROLE_COLORS[ROLE_PHARAOH] }
         end
-    end)
+    end
 
     --------------------
     -- STEAL PROGRESS --
     --------------------
 
     local client
-    AddHook("HUDPaint", "Pharaoh_HUDPaint", function()
+    local function Pharaoh_HUDPaint()
         if not client then
             client = LocalPlayer()
         end
@@ -476,19 +490,19 @@ if CLIENT then
         local y = ScrH() / 2
         local w = 300
         CRHUD:PaintProgressBar(x, y, w, COLOR_GREEN, text, progress)
-    end)
+    end
 
     ----------------
     -- ROLE POPUP --
     ----------------
 
-    hook.Add("TTTRolePopupRoleStringOverride", "Pharaoh_TTTRolePopupRoleStringOverride", function(cli, roleString)
+    local function Pharaoh_TTTRolePopupRoleStringOverride(cli, roleString)
         if not IsPlayer(cli) or not cli:IsPharaoh() then return end
 
         if DETECTIVE_ROLES[ROLE_PHARAOH] then
             return roleString .. "_detective"
         end
-    end)
+    end
 
     --------------
     -- TUTORIAL --
@@ -578,4 +592,18 @@ if CLIENT then
 
         return html
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["HUDPaint"] = Pharaoh_HUDPaint,
+        ["TTTEventFinishIconText"] = Pharaoh_EventFinishIconText,
+        ["TTTEventFinishText"] = Pharaoh_EventFinishText,
+        ["TTTRolePopupRoleStringOverride"] = Pharaoh_TTTRolePopupRoleStringOverride,
+        ["TTTScoringWinTitle"] = Pharaoh_ScoringWinTitle
+    }
 end
+
+RegisterRole(ROLE)

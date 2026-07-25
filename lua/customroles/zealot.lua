@@ -39,8 +39,6 @@ ROLE.translations = {
     }
 }
 
-RegisterRole(ROLE)
-
 if SERVER then
     AddCSLuaFile()
 
@@ -52,7 +50,7 @@ if SERVER then
 
     local soulbound_max_abilities = GetConVar("ttt_soulbound_max_abilities")
 
-    AddHook("PlayerDeath", "Zealot_PlayerDeath", function(victim, inflictor, attacker)
+    local function Zealot_PlayerDeath(victim, inflictor, attacker)
         if not IsPlayer(victim) then return end
         if not victim:IsZealot() then return end
         if victim:IsRoleAbilityDisabled() then return end
@@ -77,9 +75,9 @@ if SERVER then
         net.Start("TTT_ZealotKilled")
         net.WriteString(victim:Nick())
         net.Broadcast()
-    end)
+    end
 
-    AddHook("TTTCanRespawnAsRole", "Zealot_TTTCanRespawnAsRole", function(ply, role)
+    local function Zealot_TTTCanRespawnAsRole(ply, role)
         if not IsPlayer(ply) then return end
         if not ply:IsSoulbound() then return end
         if ply:GetNWInt("TTTSoulboundOldRole") ~= ROLE_ZEALOT then return end
@@ -87,9 +85,9 @@ if SERVER then
         if ply:IsRoleAbilityDisabled() then return end
 
         return false
-    end)
+    end
 
-    AddHook("TTTDeathNotifyOverride", "Zealot_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
+    local function Zealot_TTTDeathNotifyOverride(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
         if not attacker:IsPlayer() then return end
@@ -97,7 +95,7 @@ if SERVER then
         if not victim:IsZealot() then return end
 
         return reason, killerName, ROLE_NONE
-    end)
+    end
 
     ------------
     -- EVENTS --
@@ -106,6 +104,16 @@ if SERVER then
     AddHook("Initialize", "Zealot_Initialize", function()
         EVENT_ZEALOTDIED = GenerateNewEventID(ROLE_ZEALOT)
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["PlayerDeath"] = Zealot_PlayerDeath,
+        ["TTTCanRespawnAsRole"] = Zealot_TTTCanRespawnAsRole,
+        ["TTTDeathNotifyOverride"] = Zealot_TTTDeathNotifyOverride
+    }
 end
 
 if CLIENT then
@@ -150,11 +158,11 @@ if CLIENT then
     -- ROLE POPUP --
     ----------------
 
-    AddHook("TTTRolePopupParams", "Zealot_TTTRolePopupParams", function(cli)
+    local function Zealot_TTTRolePopupParams(cli)
         if cli:IsZealot() then
             return { asoulbound = ROLE_STRINGS_EXT[ROLE_SOULBOUND] }
         end
-    end)
+    end
 
     --------------
     -- TUTORIAL --
@@ -172,10 +180,26 @@ if CLIENT then
 
         return html
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["TTTRolePopupParams"] = Zealot_TTTRolePopupParams
+    }
 end
 
-AddHook("TTTRoleSpawnsArtificially", "Zealot_TTTRoleSpawnsArtificially", function(role)
+local function Zealot_TTTRoleSpawnsArtificially(role)
     if role == ROLE_ZEALOT and util.CanRoleSpawn(ROLE_MISSIONARY) then
         return true
     end
-end)
+end
+
+------------------
+-- REGISTRATION --
+------------------
+
+ROLE.registeredhooks["TTTRoleSpawnsArtificially"] = Zealot_TTTRoleSpawnsArtificially
+
+RegisterRole(ROLE)

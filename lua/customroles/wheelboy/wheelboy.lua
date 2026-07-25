@@ -66,10 +66,10 @@ end)
 -----------
 
 -- Attacking Wheel Boy does not penalize karma
-AddHook("TTTKarmaShouldGivePenalty", "WheelBoy_TTTKarmaShouldGivePenalty", function(attacker, victim)
+local function WheelBoy_TTTKarmaShouldGivePenalty(attacker, victim)
     if not IsPlayer(victim) or not victim:IsWheelBoy() then return end
     return false
-end)
+end
 
 ----------------
 -- WIN CHECKS --
@@ -142,7 +142,7 @@ local blockedEvents = {
 }
 
 -- Prevents a randomat from ever triggering if wheelboy is in the round
-AddHook("TTTRandomatCanEventRun", "WheelBoy_TTTRandomatCanEventRun", function(event)
+local function WheelBoy_TTTRandomatCanEventRun(event)
     if not blockedEvents[event.Id] then return end
 
     for _, ply in PlayerIterator() do
@@ -150,7 +150,7 @@ AddHook("TTTRandomatCanEventRun", "WheelBoy_TTTRandomatCanEventRun", function(ev
             return false, ROLE_STRINGS[ROLE_WHEELBOY] .. " is in the round and this event " .. blockedEvents[event.Id]
         end
     end
-end)
+end
 
 -------------
 -- CLEANUP --
@@ -200,9 +200,9 @@ local function ClearEffectsAndWheel(ply)
     net.Broadcast()
 end
 
-AddHook("TTTEndRound", "WheelBoy_TTTBeginRound", function()
+local function WheelBoy_TTTBeginRound()
     ClearEffectsAndWheel()
-end)
+end
 
 AddHook("TTTPlayerRoleChanged", "WheelBoy_TTTPlayerRoleChanged", function(ply, oldRole, newRole)
     if oldRole == newRole then return end
@@ -216,11 +216,11 @@ AddHook("TTTPlayerRoleChanged", "WheelBoy_TTTPlayerRoleChanged", function(ply, o
     end
 end)
 
-AddHook("PlayerDisconnected", "WheelBoy_PlayerDisconnected", function(ply)
+local function WheelBoy_PlayerDisconnected(ply)
     if not IsPlayer(ply) then return end
     if not ply:IsWheelBoy() then return end
     ClearEffectsAndWheel(ply)
-end)
+end
 
 -----------------
 -- DEATH LOGIC --
@@ -234,7 +234,7 @@ local function WheelBoyKilledNotification(attacker, victim)
         end)
 end
 
-AddHook("PlayerDeath", "WheelBoy_DeathLogic_PlayerDeath", function(victim, infl, attacker)
+local function WheelBoy_DeathLogic_PlayerDeath(victim, infl, attacker)
     if not victim:IsWheelBoy() then return end
 
     -- Incentivize killing the Wheel Boy if their effects are annoying
@@ -264,4 +264,16 @@ AddHook("PlayerDeath", "WheelBoy_DeathLogic_PlayerDeath", function(victim, infl,
     -- Tell the new wheelboy what happened and what to do now
     attacker:QueueMessage(MSG_PRINTBOTH, "You killed " .. ROLE_STRINGS[ROLE_WHEELBOY] .. " and have become the new " .. ROLE_STRINGS[ROLE_WHEELBOY])
     attacker:QueueMessage(MSG_PRINTBOTH, "Spin your wheel " .. spins_to_win:GetInt() .. " time(s) to win")
-end)
+end
+
+------------------
+-- REGISTRATION --
+------------------
+
+ROLE_REGISTERED_HOOKS[ROLE_WHEELBOY] = {
+    ["PlayerDeath"] = WheelBoy_DeathLogic_PlayerDeath,
+    ["PlayerDisconnected"] = WheelBoy_PlayerDisconnected,
+    ["TTTEndRound"] = WheelBoy_TTTBeginRound,
+    ["TTTKarmaShouldGivePenalty"] = WheelBoy_TTTKarmaShouldGivePenalty,
+    ["TTTRandomatCanEventRun"] = WheelBoy_TTTRandomatCanEventRun
+}

@@ -35,8 +35,6 @@ ROLE.translations = {
     }
 }
 
-RegisterRole(ROLE)
-
 if SERVER then
     AddCSLuaFile()
 
@@ -48,7 +46,7 @@ if SERVER then
 
     local ghostwhisperer_max_abilities = GetConVar("ttt_ghostwhisperer_max_abilities")
 
-    AddHook("PlayerDeath", "Monk_PlayerDeath", function(victim, inflictor, attacker)
+    local function Monk_PlayerDeath(victim, inflictor, attacker)
         if not IsPlayer(victim) then return end
         if not victim:IsMonk() then return end
         if victim:IsRoleAbilityDisabled() then return end
@@ -70,18 +68,18 @@ if SERVER then
         net.Start("TTT_MonkKilled")
         net.WriteString(victim:Nick())
         net.Broadcast()
-    end)
+    end
 
-    AddHook("TTTCanRespawnAsRole", "Monk_TTTCanRespawnAsRole", function(ply, role)
+    local function Monk_TTTCanRespawnAsRole(ply, role)
         if not IsPlayer(ply) then return end
         if not ply:IsMonk() then return end
         -- Let them change roles if they aren't going to dissolve
         if ply:IsRoleAbilityDisabled() then return end
 
         return false
-    end)
+    end
 
-    AddHook("TTTDeathNotifyOverride", "Monk_TTTDeathNotifyOverride", function(victim, inflictor, attacker, reason, killerName, role)
+    local function Monk_TTTDeathNotifyOverride(victim, inflictor, attacker, reason, killerName, role)
         if GetRoundState() ~= ROUND_ACTIVE then return end
         if not IsValid(inflictor) or not IsValid(attacker) then return end
         if not attacker:IsPlayer() then return end
@@ -89,7 +87,7 @@ if SERVER then
         if not victim:IsMonk() then return end
 
         return reason, killerName, ROLE_NONE
-    end)
+    end
 
     ------------
     -- EVENTS --
@@ -98,6 +96,16 @@ if SERVER then
     AddHook("Initialize", "Monk_Initialize", function()
         EVENT_MONKDIED = GenerateNewEventID(ROLE_MONK)
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        ["PlayerDeath"] = Monk_PlayerDeath,
+        ["TTTCanRespawnAsRole"] = Monk_TTTCanRespawnAsRole,
+        ["TTTDeathNotifyOverride"] = Monk_TTTDeathNotifyOverride
+    }
 end
 
 if CLIENT then
@@ -143,10 +151,27 @@ if CLIENT then
 
         return html
     end)
+
+    ------------------
+    -- REGISTRATION --
+    ------------------
+
+    ROLE.registeredhooks = {
+        -- Create an empty table here so any hooks in a shared context can be added to it below
+        -- If no hooks are registered in a shared context, this block can be removed
+    }
 end
 
-AddHook("TTTRoleSpawnsArtificially", "Monk_TTTRoleSpawnsArtificially", function(role)
+local function Monk_TTTRoleSpawnsArtificially(role)
     if role == ROLE_MONK and util.CanRoleSpawn(ROLE_MISSIONARY) then
         return true
     end
-end)
+end
+
+------------------
+-- REGISTRATION --
+------------------
+
+ROLE.registeredhooks["TTTRoleSpawnsArtificially"] = Monk_TTTRoleSpawnsArtificially
+
+RegisterRole(ROLE)
