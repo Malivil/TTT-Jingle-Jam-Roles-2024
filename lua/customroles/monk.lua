@@ -151,27 +151,18 @@ if CLIENT then
 
         return html
     end)
-
-    ------------------
-    -- REGISTRATION --
-    ------------------
-
-    ROLE.registeredhooks = {
-        -- Create an empty table here so any hooks in a shared context can be added to it below
-        -- If no hooks are registered in a shared context, this block can be removed
-    }
 end
 
-local function Monk_TTTRoleSpawnsArtificially(role)
+AddHook("TTTRoleSpawnsArtificially", "Monk_TTTRoleSpawnsArtificially", function(role)
     if role == ROLE_MONK and util.CanRoleSpawn(ROLE_MISSIONARY) then
         return true
     end
-end
+end)
 
 ------------------
 -- REGISTRATION --
 ------------------
 
-ROLE.registeredhooks["TTTRoleSpawnsArtificially"] = Monk_TTTRoleSpawnsArtificially
+ROLE.hookregistrationdependencies = {ROLE_SOULBOUND, ROLE_GHOSTWHISPERER}
 
 RegisterRole(ROLE)
