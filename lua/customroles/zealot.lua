@@ -196,4 +196,10 @@ AddHook("TTTRoleSpawnsArtificially", "Zealot_TTTRoleSpawnsArtificially", functio
     end
 end)
 
+------------------
+-- REGISTRATION --
+------------------
+
+ROLE.hookregistrationdependencies = {ROLE_SOULBOUND, ROLE_GHOSTWHISPERER}
+
 RegisterRole(ROLE)
