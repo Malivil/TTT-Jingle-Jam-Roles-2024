@@ -565,11 +565,11 @@ if CLIENT then
     }
 end
 
-local function Hermit_TTTRoleSpawnsArtificially(role)
+AddHook("TTTRoleSpawnsArtificially", "Hermit_TTTRoleSpawnsArtificially", function(role)
     if role == ROLE_HERMIT and util.CanRoleSpawn(ROLE_MISSIONARY) then
         return true
     end
-end
+end)
 
 AddHook("TTTUpdateRoleState", "Hermit_TTTUpdateRoleState", function()
     if INNOCENT_ROLES[ROLE_HERMIT] or TRAITOR_ROLES[ROLE_HERMIT] then return end
@@ -583,6 +583,6 @@ end)
 -- REGISTRATION --
 ------------------
 
-ROLE.registeredhooks["TTTRoleSpawnsArtificially"] = Hermit_TTTRoleSpawnsArtificially
+ROLE.hookregistrationdependencies = {ROLE_SOULBOUND, ROLE_GHOSTWHISPERER}
 
 RegisterRole(ROLE)

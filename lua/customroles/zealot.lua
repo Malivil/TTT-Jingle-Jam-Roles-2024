@@ -190,16 +190,16 @@ if CLIENT then
     }
 end
 
-local function Zealot_TTTRoleSpawnsArtificially(role)
+AddHook("TTTRoleSpawnsArtificially", "Zealot_TTTRoleSpawnsArtificially", function(role)
     if role == ROLE_ZEALOT and util.CanRoleSpawn(ROLE_MISSIONARY) then
         return true
     end
-end
+end)
 
 ------------------
 -- REGISTRATION --
 ------------------
 
-ROLE.registeredhooks["TTTRoleSpawnsArtificially"] = Zealot_TTTRoleSpawnsArtificially
+ROLE.hookregistrationdependencies = {ROLE_SOULBOUND, ROLE_GHOSTWHISPERER}
 
 RegisterRole(ROLE)

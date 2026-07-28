@@ -1355,6 +1355,7 @@ globals = {
     "TASKMASTER",
 
     -- JJ2023
+    "ROLE_GHOSTWHISPERER",
     "ROLE_SOULBOUND",
 
     -- JJ2024
