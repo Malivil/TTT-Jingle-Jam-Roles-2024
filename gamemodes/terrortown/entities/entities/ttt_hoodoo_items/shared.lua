@@ -57,7 +57,7 @@ if SERVER then
     util.AddNetworkString("UpdateHoodooItems")
 
     -- Lame is pointless to have in the shop as it itself does nothing
-    local hoodoo_banned_randomats = CreateConVar("ttt_hoodoo_banned_randomats", "lame", FCVAR_NONE, "Events not allowed in the hoodoo's shop, separate ids with commas. You can find a randomat's ID by looking at an event in the randomat ULX menu.")
+    local hoodoo_banned_randomats = CreateConVar("ttt_hoodoo_banned_randomats", "lame,credits", FCVAR_NONE, "Events not allowed in the hoodoo's shop, separate ids with commas. You can find a randomat's ID by looking at an event in the randomat ULX menu.")
     local hoodoo_guaranteed_categories = CreateConVar("ttt_hoodoo_guaranteed_categories", "biased_traitor", FCVAR_NONE, "At least one randomat from each of these categories will always be in the hoodoo's shop. You can find a randomat's category by looking at an event in the randomat ULX menu.")
     local hoodoo_banned_categories = CreateConVar("ttt_hoodoo_banned_categories", "gamemode,rolechange", FCVAR_NONE, "At least one randomat from each of these categories will always be in the hoodoo's shop. You can find a randomat's category by looking at an event in the randomat ULX menu.")
     local hoodoo_guaranteed_randomats = CreateConVar("ttt_hoodoo_guaranteed_randomats", "", FCVAR_NONE, "Events that will always appear in the randoma's shop, separate ids with commas.")
@@ -294,8 +294,16 @@ if SERVER then
             if ply:IsHoodoo() then
                 for j, item in ipairs(EquipmentItems[ROLE_HOODOO]) do
                     -- Check that it is using one of the IDs used by a hoodoo item
-                    if IsHoodooItem(item.id) and not Randomat:CanEventRun(item.eventid) then
-                        ply:AddEquipmentItem(item.id)
+                    if IsHoodooItem(item.id) then
+                        local itemId = tonumber(item.id)
+                        local canRun = Randomat:CanEventRun(item.eventid)
+                        if ply:HasEquipmentItem(itemId) then
+                            if canRun then
+                                ply:RemoveEquipmentItem(itemId)
+                            end
+                        elseif not canRun then
+                            ply:AddEquipmentItem(itemId)
+                        end
                     end
                 end
             end
